@@ -11,6 +11,7 @@ import '../../data/repositories/mail_repository_impl.dart';
 import '../../data/services/mail_message_mapper.dart';
 import '../../data/services/mail_runtime_service.dart';
 import '../../data/services/notification_service.dart';
+import '../../data/services/scheduled_send_service.dart';
 import '../../domain/usecases/sync_inbox_usecase.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) => AppDatabase());
@@ -41,6 +42,10 @@ final mailRuntimeServiceProvider = Provider<MailRuntimeService>((ref) {
     ref.watch(notificationServiceProvider),
   );
 });
+
+final scheduledSendServiceProvider = Provider<ScheduledSendService>(
+  (ref) => ScheduledSendService(),
+);
 
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {
   return AccountRepositoryImpl(

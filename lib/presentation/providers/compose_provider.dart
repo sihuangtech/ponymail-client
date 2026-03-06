@@ -12,12 +12,16 @@ class ComposeNotifier extends AsyncNotifier<void> {
 
   Future<void> send(ComposeRequest request) async {
     state = const AsyncLoading();
-    final repository = ref.read(mailRepositoryProvider);
     state = await AsyncValue.guard(() async {
-      final result = await repository.sendEmail(request);
-      if (!result.isSuccess) {
-        throw Exception(result.failure?.message ?? 'send failed');
-      }
+      await ref.read(scheduledSendServiceProvider).schedule(
+        request,
+        (payload) async {
+          final result = await ref.read(mailRepositoryProvider).sendEmail(payload);
+          if (!result.isSuccess) {
+            throw Exception(result.failure?.message ?? 'send failed');
+          }
+        },
+      );
     });
   }
 

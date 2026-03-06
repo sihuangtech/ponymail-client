@@ -777,6 +777,17 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _remoteUidMeta = const VerificationMeta(
+    'remoteUid',
+  );
+  @override
+  late final GeneratedColumn<int> remoteUid = GeneratedColumn<int>(
+    'remote_uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _messageIdMeta = const VerificationMeta(
     'messageId',
   );
@@ -845,6 +856,18 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
   @override
   late final GeneratedColumn<String> ccList = GeneratedColumn<String>(
     'cc_list',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _bccListMeta = const VerificationMeta(
+    'bccList',
+  );
+  @override
+  late final GeneratedColumn<String> bccList = GeneratedColumn<String>(
+    'bcc_list',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -939,6 +962,21 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isDraftMeta = const VerificationMeta(
+    'isDraft',
+  );
+  @override
+  late final GeneratedColumn<bool> isDraft = GeneratedColumn<bool>(
+    'is_draft',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_draft" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _labelsMeta = const VerificationMeta('labels');
   @override
   late final GeneratedColumn<String> labels = GeneratedColumn<String>(
@@ -992,6 +1030,7 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
   List<GeneratedColumn> get $columns => [
     id,
     accountId,
+    remoteUid,
     messageId,
     mailbox,
     subject,
@@ -999,6 +1038,7 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
     fromEmail,
     toList,
     ccList,
+    bccList,
     date,
     preview,
     bodyPlain,
@@ -1006,6 +1046,7 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
     isRead,
     isStarred,
     isDeleted,
+    isDraft,
     labels,
     threadId,
     hasAttachments,
@@ -1033,6 +1074,12 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
       );
     } else if (isInserting) {
       context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('remote_uid')) {
+      context.handle(
+        _remoteUidMeta,
+        remoteUid.isAcceptableOrUnknown(data['remote_uid']!, _remoteUidMeta),
+      );
     }
     if (data.containsKey('message_id')) {
       context.handle(
@@ -1088,6 +1135,12 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
         ccList.isAcceptableOrUnknown(data['cc_list']!, _ccListMeta),
       );
     }
+    if (data.containsKey('bcc_list')) {
+      context.handle(
+        _bccListMeta,
+        bccList.isAcceptableOrUnknown(data['bcc_list']!, _bccListMeta),
+      );
+    }
     if (data.containsKey('date')) {
       context.handle(
         _dateMeta,
@@ -1130,6 +1183,12 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
       context.handle(
         _isDeletedMeta,
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('is_draft')) {
+      context.handle(
+        _isDraftMeta,
+        isDraft.isAcceptableOrUnknown(data['is_draft']!, _isDraftMeta),
       );
     }
     if (data.containsKey('labels')) {
@@ -1176,6 +1235,10 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
         DriftSqlType.int,
         data['${effectivePrefix}account_id'],
       )!,
+      remoteUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}remote_uid'],
+      ),
       messageId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}message_id'],
@@ -1203,6 +1266,10 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
       ccList: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}cc_list'],
+      )!,
+      bccList: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bcc_list'],
       )!,
       date: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -1232,6 +1299,10 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
+      isDraft: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_draft'],
+      )!,
       labels: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}labels'],
@@ -1260,6 +1331,7 @@ class $EmailsTable extends Emails with TableInfo<$EmailsTable, Email> {
 class Email extends DataClass implements Insertable<Email> {
   final int id;
   final int accountId;
+  final int? remoteUid;
   final String messageId;
   final String mailbox;
   final String subject;
@@ -1267,6 +1339,7 @@ class Email extends DataClass implements Insertable<Email> {
   final String fromEmail;
   final String toList;
   final String ccList;
+  final String bccList;
   final DateTime date;
   final String preview;
   final String bodyPlain;
@@ -1274,6 +1347,7 @@ class Email extends DataClass implements Insertable<Email> {
   final bool isRead;
   final bool isStarred;
   final bool isDeleted;
+  final bool isDraft;
   final String labels;
   final String threadId;
   final bool hasAttachments;
@@ -1281,6 +1355,7 @@ class Email extends DataClass implements Insertable<Email> {
   const Email({
     required this.id,
     required this.accountId,
+    this.remoteUid,
     required this.messageId,
     required this.mailbox,
     required this.subject,
@@ -1288,6 +1363,7 @@ class Email extends DataClass implements Insertable<Email> {
     required this.fromEmail,
     required this.toList,
     required this.ccList,
+    required this.bccList,
     required this.date,
     required this.preview,
     required this.bodyPlain,
@@ -1295,6 +1371,7 @@ class Email extends DataClass implements Insertable<Email> {
     required this.isRead,
     required this.isStarred,
     required this.isDeleted,
+    required this.isDraft,
     required this.labels,
     required this.threadId,
     required this.hasAttachments,
@@ -1305,6 +1382,9 @@ class Email extends DataClass implements Insertable<Email> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['account_id'] = Variable<int>(accountId);
+    if (!nullToAbsent || remoteUid != null) {
+      map['remote_uid'] = Variable<int>(remoteUid);
+    }
     map['message_id'] = Variable<String>(messageId);
     map['mailbox'] = Variable<String>(mailbox);
     map['subject'] = Variable<String>(subject);
@@ -1312,6 +1392,7 @@ class Email extends DataClass implements Insertable<Email> {
     map['from_email'] = Variable<String>(fromEmail);
     map['to_list'] = Variable<String>(toList);
     map['cc_list'] = Variable<String>(ccList);
+    map['bcc_list'] = Variable<String>(bccList);
     map['date'] = Variable<DateTime>(date);
     map['preview'] = Variable<String>(preview);
     map['body_plain'] = Variable<String>(bodyPlain);
@@ -1319,6 +1400,7 @@ class Email extends DataClass implements Insertable<Email> {
     map['is_read'] = Variable<bool>(isRead);
     map['is_starred'] = Variable<bool>(isStarred);
     map['is_deleted'] = Variable<bool>(isDeleted);
+    map['is_draft'] = Variable<bool>(isDraft);
     map['labels'] = Variable<String>(labels);
     map['thread_id'] = Variable<String>(threadId);
     map['has_attachments'] = Variable<bool>(hasAttachments);
@@ -1330,6 +1412,9 @@ class Email extends DataClass implements Insertable<Email> {
     return EmailsCompanion(
       id: Value(id),
       accountId: Value(accountId),
+      remoteUid: remoteUid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteUid),
       messageId: Value(messageId),
       mailbox: Value(mailbox),
       subject: Value(subject),
@@ -1337,6 +1422,7 @@ class Email extends DataClass implements Insertable<Email> {
       fromEmail: Value(fromEmail),
       toList: Value(toList),
       ccList: Value(ccList),
+      bccList: Value(bccList),
       date: Value(date),
       preview: Value(preview),
       bodyPlain: Value(bodyPlain),
@@ -1344,6 +1430,7 @@ class Email extends DataClass implements Insertable<Email> {
       isRead: Value(isRead),
       isStarred: Value(isStarred),
       isDeleted: Value(isDeleted),
+      isDraft: Value(isDraft),
       labels: Value(labels),
       threadId: Value(threadId),
       hasAttachments: Value(hasAttachments),
@@ -1359,6 +1446,7 @@ class Email extends DataClass implements Insertable<Email> {
     return Email(
       id: serializer.fromJson<int>(json['id']),
       accountId: serializer.fromJson<int>(json['accountId']),
+      remoteUid: serializer.fromJson<int?>(json['remoteUid']),
       messageId: serializer.fromJson<String>(json['messageId']),
       mailbox: serializer.fromJson<String>(json['mailbox']),
       subject: serializer.fromJson<String>(json['subject']),
@@ -1366,6 +1454,7 @@ class Email extends DataClass implements Insertable<Email> {
       fromEmail: serializer.fromJson<String>(json['fromEmail']),
       toList: serializer.fromJson<String>(json['toList']),
       ccList: serializer.fromJson<String>(json['ccList']),
+      bccList: serializer.fromJson<String>(json['bccList']),
       date: serializer.fromJson<DateTime>(json['date']),
       preview: serializer.fromJson<String>(json['preview']),
       bodyPlain: serializer.fromJson<String>(json['bodyPlain']),
@@ -1373,6 +1462,7 @@ class Email extends DataClass implements Insertable<Email> {
       isRead: serializer.fromJson<bool>(json['isRead']),
       isStarred: serializer.fromJson<bool>(json['isStarred']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      isDraft: serializer.fromJson<bool>(json['isDraft']),
       labels: serializer.fromJson<String>(json['labels']),
       threadId: serializer.fromJson<String>(json['threadId']),
       hasAttachments: serializer.fromJson<bool>(json['hasAttachments']),
@@ -1385,6 +1475,7 @@ class Email extends DataClass implements Insertable<Email> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'accountId': serializer.toJson<int>(accountId),
+      'remoteUid': serializer.toJson<int?>(remoteUid),
       'messageId': serializer.toJson<String>(messageId),
       'mailbox': serializer.toJson<String>(mailbox),
       'subject': serializer.toJson<String>(subject),
@@ -1392,6 +1483,7 @@ class Email extends DataClass implements Insertable<Email> {
       'fromEmail': serializer.toJson<String>(fromEmail),
       'toList': serializer.toJson<String>(toList),
       'ccList': serializer.toJson<String>(ccList),
+      'bccList': serializer.toJson<String>(bccList),
       'date': serializer.toJson<DateTime>(date),
       'preview': serializer.toJson<String>(preview),
       'bodyPlain': serializer.toJson<String>(bodyPlain),
@@ -1399,6 +1491,7 @@ class Email extends DataClass implements Insertable<Email> {
       'isRead': serializer.toJson<bool>(isRead),
       'isStarred': serializer.toJson<bool>(isStarred),
       'isDeleted': serializer.toJson<bool>(isDeleted),
+      'isDraft': serializer.toJson<bool>(isDraft),
       'labels': serializer.toJson<String>(labels),
       'threadId': serializer.toJson<String>(threadId),
       'hasAttachments': serializer.toJson<bool>(hasAttachments),
@@ -1409,6 +1502,7 @@ class Email extends DataClass implements Insertable<Email> {
   Email copyWith({
     int? id,
     int? accountId,
+    Value<int?> remoteUid = const Value.absent(),
     String? messageId,
     String? mailbox,
     String? subject,
@@ -1416,6 +1510,7 @@ class Email extends DataClass implements Insertable<Email> {
     String? fromEmail,
     String? toList,
     String? ccList,
+    String? bccList,
     DateTime? date,
     String? preview,
     String? bodyPlain,
@@ -1423,6 +1518,7 @@ class Email extends DataClass implements Insertable<Email> {
     bool? isRead,
     bool? isStarred,
     bool? isDeleted,
+    bool? isDraft,
     String? labels,
     String? threadId,
     bool? hasAttachments,
@@ -1430,6 +1526,7 @@ class Email extends DataClass implements Insertable<Email> {
   }) => Email(
     id: id ?? this.id,
     accountId: accountId ?? this.accountId,
+    remoteUid: remoteUid.present ? remoteUid.value : this.remoteUid,
     messageId: messageId ?? this.messageId,
     mailbox: mailbox ?? this.mailbox,
     subject: subject ?? this.subject,
@@ -1437,6 +1534,7 @@ class Email extends DataClass implements Insertable<Email> {
     fromEmail: fromEmail ?? this.fromEmail,
     toList: toList ?? this.toList,
     ccList: ccList ?? this.ccList,
+    bccList: bccList ?? this.bccList,
     date: date ?? this.date,
     preview: preview ?? this.preview,
     bodyPlain: bodyPlain ?? this.bodyPlain,
@@ -1444,6 +1542,7 @@ class Email extends DataClass implements Insertable<Email> {
     isRead: isRead ?? this.isRead,
     isStarred: isStarred ?? this.isStarred,
     isDeleted: isDeleted ?? this.isDeleted,
+    isDraft: isDraft ?? this.isDraft,
     labels: labels ?? this.labels,
     threadId: threadId ?? this.threadId,
     hasAttachments: hasAttachments ?? this.hasAttachments,
@@ -1453,6 +1552,7 @@ class Email extends DataClass implements Insertable<Email> {
     return Email(
       id: data.id.present ? data.id.value : this.id,
       accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      remoteUid: data.remoteUid.present ? data.remoteUid.value : this.remoteUid,
       messageId: data.messageId.present ? data.messageId.value : this.messageId,
       mailbox: data.mailbox.present ? data.mailbox.value : this.mailbox,
       subject: data.subject.present ? data.subject.value : this.subject,
@@ -1460,6 +1560,7 @@ class Email extends DataClass implements Insertable<Email> {
       fromEmail: data.fromEmail.present ? data.fromEmail.value : this.fromEmail,
       toList: data.toList.present ? data.toList.value : this.toList,
       ccList: data.ccList.present ? data.ccList.value : this.ccList,
+      bccList: data.bccList.present ? data.bccList.value : this.bccList,
       date: data.date.present ? data.date.value : this.date,
       preview: data.preview.present ? data.preview.value : this.preview,
       bodyPlain: data.bodyPlain.present ? data.bodyPlain.value : this.bodyPlain,
@@ -1467,6 +1568,7 @@ class Email extends DataClass implements Insertable<Email> {
       isRead: data.isRead.present ? data.isRead.value : this.isRead,
       isStarred: data.isStarred.present ? data.isStarred.value : this.isStarred,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      isDraft: data.isDraft.present ? data.isDraft.value : this.isDraft,
       labels: data.labels.present ? data.labels.value : this.labels,
       threadId: data.threadId.present ? data.threadId.value : this.threadId,
       hasAttachments: data.hasAttachments.present
@@ -1481,6 +1583,7 @@ class Email extends DataClass implements Insertable<Email> {
     return (StringBuffer('Email(')
           ..write('id: $id, ')
           ..write('accountId: $accountId, ')
+          ..write('remoteUid: $remoteUid, ')
           ..write('messageId: $messageId, ')
           ..write('mailbox: $mailbox, ')
           ..write('subject: $subject, ')
@@ -1488,6 +1591,7 @@ class Email extends DataClass implements Insertable<Email> {
           ..write('fromEmail: $fromEmail, ')
           ..write('toList: $toList, ')
           ..write('ccList: $ccList, ')
+          ..write('bccList: $bccList, ')
           ..write('date: $date, ')
           ..write('preview: $preview, ')
           ..write('bodyPlain: $bodyPlain, ')
@@ -1495,6 +1599,7 @@ class Email extends DataClass implements Insertable<Email> {
           ..write('isRead: $isRead, ')
           ..write('isStarred: $isStarred, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('isDraft: $isDraft, ')
           ..write('labels: $labels, ')
           ..write('threadId: $threadId, ')
           ..write('hasAttachments: $hasAttachments, ')
@@ -1504,9 +1609,10 @@ class Email extends DataClass implements Insertable<Email> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     accountId,
+    remoteUid,
     messageId,
     mailbox,
     subject,
@@ -1514,6 +1620,7 @@ class Email extends DataClass implements Insertable<Email> {
     fromEmail,
     toList,
     ccList,
+    bccList,
     date,
     preview,
     bodyPlain,
@@ -1521,17 +1628,19 @@ class Email extends DataClass implements Insertable<Email> {
     isRead,
     isStarred,
     isDeleted,
+    isDraft,
     labels,
     threadId,
     hasAttachments,
     createdAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Email &&
           other.id == this.id &&
           other.accountId == this.accountId &&
+          other.remoteUid == this.remoteUid &&
           other.messageId == this.messageId &&
           other.mailbox == this.mailbox &&
           other.subject == this.subject &&
@@ -1539,6 +1648,7 @@ class Email extends DataClass implements Insertable<Email> {
           other.fromEmail == this.fromEmail &&
           other.toList == this.toList &&
           other.ccList == this.ccList &&
+          other.bccList == this.bccList &&
           other.date == this.date &&
           other.preview == this.preview &&
           other.bodyPlain == this.bodyPlain &&
@@ -1546,6 +1656,7 @@ class Email extends DataClass implements Insertable<Email> {
           other.isRead == this.isRead &&
           other.isStarred == this.isStarred &&
           other.isDeleted == this.isDeleted &&
+          other.isDraft == this.isDraft &&
           other.labels == this.labels &&
           other.threadId == this.threadId &&
           other.hasAttachments == this.hasAttachments &&
@@ -1555,6 +1666,7 @@ class Email extends DataClass implements Insertable<Email> {
 class EmailsCompanion extends UpdateCompanion<Email> {
   final Value<int> id;
   final Value<int> accountId;
+  final Value<int?> remoteUid;
   final Value<String> messageId;
   final Value<String> mailbox;
   final Value<String> subject;
@@ -1562,6 +1674,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   final Value<String> fromEmail;
   final Value<String> toList;
   final Value<String> ccList;
+  final Value<String> bccList;
   final Value<DateTime> date;
   final Value<String> preview;
   final Value<String> bodyPlain;
@@ -1569,6 +1682,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   final Value<bool> isRead;
   final Value<bool> isStarred;
   final Value<bool> isDeleted;
+  final Value<bool> isDraft;
   final Value<String> labels;
   final Value<String> threadId;
   final Value<bool> hasAttachments;
@@ -1576,6 +1690,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   const EmailsCompanion({
     this.id = const Value.absent(),
     this.accountId = const Value.absent(),
+    this.remoteUid = const Value.absent(),
     this.messageId = const Value.absent(),
     this.mailbox = const Value.absent(),
     this.subject = const Value.absent(),
@@ -1583,6 +1698,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     this.fromEmail = const Value.absent(),
     this.toList = const Value.absent(),
     this.ccList = const Value.absent(),
+    this.bccList = const Value.absent(),
     this.date = const Value.absent(),
     this.preview = const Value.absent(),
     this.bodyPlain = const Value.absent(),
@@ -1590,6 +1706,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     this.isRead = const Value.absent(),
     this.isStarred = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.isDraft = const Value.absent(),
     this.labels = const Value.absent(),
     this.threadId = const Value.absent(),
     this.hasAttachments = const Value.absent(),
@@ -1598,6 +1715,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   EmailsCompanion.insert({
     this.id = const Value.absent(),
     required int accountId,
+    this.remoteUid = const Value.absent(),
     required String messageId,
     required String mailbox,
     required String subject,
@@ -1605,6 +1723,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     required String fromEmail,
     required String toList,
     this.ccList = const Value.absent(),
+    this.bccList = const Value.absent(),
     required DateTime date,
     this.preview = const Value.absent(),
     this.bodyPlain = const Value.absent(),
@@ -1612,6 +1731,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     this.isRead = const Value.absent(),
     this.isStarred = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.isDraft = const Value.absent(),
     this.labels = const Value.absent(),
     this.threadId = const Value.absent(),
     this.hasAttachments = const Value.absent(),
@@ -1627,6 +1747,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   static Insertable<Email> custom({
     Expression<int>? id,
     Expression<int>? accountId,
+    Expression<int>? remoteUid,
     Expression<String>? messageId,
     Expression<String>? mailbox,
     Expression<String>? subject,
@@ -1634,6 +1755,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     Expression<String>? fromEmail,
     Expression<String>? toList,
     Expression<String>? ccList,
+    Expression<String>? bccList,
     Expression<DateTime>? date,
     Expression<String>? preview,
     Expression<String>? bodyPlain,
@@ -1641,6 +1763,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     Expression<bool>? isRead,
     Expression<bool>? isStarred,
     Expression<bool>? isDeleted,
+    Expression<bool>? isDraft,
     Expression<String>? labels,
     Expression<String>? threadId,
     Expression<bool>? hasAttachments,
@@ -1649,6 +1772,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (accountId != null) 'account_id': accountId,
+      if (remoteUid != null) 'remote_uid': remoteUid,
       if (messageId != null) 'message_id': messageId,
       if (mailbox != null) 'mailbox': mailbox,
       if (subject != null) 'subject': subject,
@@ -1656,6 +1780,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
       if (fromEmail != null) 'from_email': fromEmail,
       if (toList != null) 'to_list': toList,
       if (ccList != null) 'cc_list': ccList,
+      if (bccList != null) 'bcc_list': bccList,
       if (date != null) 'date': date,
       if (preview != null) 'preview': preview,
       if (bodyPlain != null) 'body_plain': bodyPlain,
@@ -1663,6 +1788,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
       if (isRead != null) 'is_read': isRead,
       if (isStarred != null) 'is_starred': isStarred,
       if (isDeleted != null) 'is_deleted': isDeleted,
+      if (isDraft != null) 'is_draft': isDraft,
       if (labels != null) 'labels': labels,
       if (threadId != null) 'thread_id': threadId,
       if (hasAttachments != null) 'has_attachments': hasAttachments,
@@ -1673,6 +1799,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
   EmailsCompanion copyWith({
     Value<int>? id,
     Value<int>? accountId,
+    Value<int?>? remoteUid,
     Value<String>? messageId,
     Value<String>? mailbox,
     Value<String>? subject,
@@ -1680,6 +1807,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     Value<String>? fromEmail,
     Value<String>? toList,
     Value<String>? ccList,
+    Value<String>? bccList,
     Value<DateTime>? date,
     Value<String>? preview,
     Value<String>? bodyPlain,
@@ -1687,6 +1815,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     Value<bool>? isRead,
     Value<bool>? isStarred,
     Value<bool>? isDeleted,
+    Value<bool>? isDraft,
     Value<String>? labels,
     Value<String>? threadId,
     Value<bool>? hasAttachments,
@@ -1695,6 +1824,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     return EmailsCompanion(
       id: id ?? this.id,
       accountId: accountId ?? this.accountId,
+      remoteUid: remoteUid ?? this.remoteUid,
       messageId: messageId ?? this.messageId,
       mailbox: mailbox ?? this.mailbox,
       subject: subject ?? this.subject,
@@ -1702,6 +1832,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
       fromEmail: fromEmail ?? this.fromEmail,
       toList: toList ?? this.toList,
       ccList: ccList ?? this.ccList,
+      bccList: bccList ?? this.bccList,
       date: date ?? this.date,
       preview: preview ?? this.preview,
       bodyPlain: bodyPlain ?? this.bodyPlain,
@@ -1709,6 +1840,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
       isRead: isRead ?? this.isRead,
       isStarred: isStarred ?? this.isStarred,
       isDeleted: isDeleted ?? this.isDeleted,
+      isDraft: isDraft ?? this.isDraft,
       labels: labels ?? this.labels,
       threadId: threadId ?? this.threadId,
       hasAttachments: hasAttachments ?? this.hasAttachments,
@@ -1724,6 +1856,9 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     }
     if (accountId.present) {
       map['account_id'] = Variable<int>(accountId.value);
+    }
+    if (remoteUid.present) {
+      map['remote_uid'] = Variable<int>(remoteUid.value);
     }
     if (messageId.present) {
       map['message_id'] = Variable<String>(messageId.value);
@@ -1746,6 +1881,9 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     if (ccList.present) {
       map['cc_list'] = Variable<String>(ccList.value);
     }
+    if (bccList.present) {
+      map['bcc_list'] = Variable<String>(bccList.value);
+    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
@@ -1767,6 +1905,9 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
+    if (isDraft.present) {
+      map['is_draft'] = Variable<bool>(isDraft.value);
+    }
     if (labels.present) {
       map['labels'] = Variable<String>(labels.value);
     }
@@ -1787,6 +1928,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
     return (StringBuffer('EmailsCompanion(')
           ..write('id: $id, ')
           ..write('accountId: $accountId, ')
+          ..write('remoteUid: $remoteUid, ')
           ..write('messageId: $messageId, ')
           ..write('mailbox: $mailbox, ')
           ..write('subject: $subject, ')
@@ -1794,6 +1936,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
           ..write('fromEmail: $fromEmail, ')
           ..write('toList: $toList, ')
           ..write('ccList: $ccList, ')
+          ..write('bccList: $bccList, ')
           ..write('date: $date, ')
           ..write('preview: $preview, ')
           ..write('bodyPlain: $bodyPlain, ')
@@ -1801,6 +1944,7 @@ class EmailsCompanion extends UpdateCompanion<Email> {
           ..write('isRead: $isRead, ')
           ..write('isStarred: $isStarred, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('isDraft: $isDraft, ')
           ..write('labels: $labels, ')
           ..write('threadId: $threadId, ')
           ..write('hasAttachments: $hasAttachments, ')
@@ -1882,6 +2026,17 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _remoteFetchIdMeta = const VerificationMeta(
+    'remoteFetchId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteFetchId = GeneratedColumn<String>(
+    'remote_fetch_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1890,6 +2045,7 @@ class $AttachmentsTable extends Attachments
     mimeType,
     size,
     localPath,
+    remoteFetchId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1946,6 +2102,15 @@ class $AttachmentsTable extends Attachments
     } else if (isInserting) {
       context.missing(_localPathMeta);
     }
+    if (data.containsKey('remote_fetch_id')) {
+      context.handle(
+        _remoteFetchIdMeta,
+        remoteFetchId.isAcceptableOrUnknown(
+          data['remote_fetch_id']!,
+          _remoteFetchIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1979,6 +2144,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.string,
         data['${effectivePrefix}local_path'],
       )!,
+      remoteFetchId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_fetch_id'],
+      ),
     );
   }
 
@@ -1995,6 +2164,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
   final String mimeType;
   final int size;
   final String localPath;
+  final String? remoteFetchId;
   const Attachment({
     required this.id,
     required this.emailId,
@@ -2002,6 +2172,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     required this.mimeType,
     required this.size,
     required this.localPath,
+    this.remoteFetchId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2012,6 +2183,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     map['mime_type'] = Variable<String>(mimeType);
     map['size'] = Variable<int>(size);
     map['local_path'] = Variable<String>(localPath);
+    if (!nullToAbsent || remoteFetchId != null) {
+      map['remote_fetch_id'] = Variable<String>(remoteFetchId);
+    }
     return map;
   }
 
@@ -2023,6 +2197,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       mimeType: Value(mimeType),
       size: Value(size),
       localPath: Value(localPath),
+      remoteFetchId: remoteFetchId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteFetchId),
     );
   }
 
@@ -2038,6 +2215,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       mimeType: serializer.fromJson<String>(json['mimeType']),
       size: serializer.fromJson<int>(json['size']),
       localPath: serializer.fromJson<String>(json['localPath']),
+      remoteFetchId: serializer.fromJson<String?>(json['remoteFetchId']),
     );
   }
   @override
@@ -2050,6 +2228,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       'mimeType': serializer.toJson<String>(mimeType),
       'size': serializer.toJson<int>(size),
       'localPath': serializer.toJson<String>(localPath),
+      'remoteFetchId': serializer.toJson<String?>(remoteFetchId),
     };
   }
 
@@ -2060,6 +2239,7 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     String? mimeType,
     int? size,
     String? localPath,
+    Value<String?> remoteFetchId = const Value.absent(),
   }) => Attachment(
     id: id ?? this.id,
     emailId: emailId ?? this.emailId,
@@ -2067,6 +2247,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     mimeType: mimeType ?? this.mimeType,
     size: size ?? this.size,
     localPath: localPath ?? this.localPath,
+    remoteFetchId: remoteFetchId.present
+        ? remoteFetchId.value
+        : this.remoteFetchId,
   );
   Attachment copyWithCompanion(AttachmentsCompanion data) {
     return Attachment(
@@ -2076,6 +2259,9 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
       size: data.size.present ? data.size.value : this.size,
       localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      remoteFetchId: data.remoteFetchId.present
+          ? data.remoteFetchId.value
+          : this.remoteFetchId,
     );
   }
 
@@ -2087,14 +2273,22 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           ..write('filename: $filename, ')
           ..write('mimeType: $mimeType, ')
           ..write('size: $size, ')
-          ..write('localPath: $localPath')
+          ..write('localPath: $localPath, ')
+          ..write('remoteFetchId: $remoteFetchId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, emailId, filename, mimeType, size, localPath);
+  int get hashCode => Object.hash(
+    id,
+    emailId,
+    filename,
+    mimeType,
+    size,
+    localPath,
+    remoteFetchId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2104,7 +2298,8 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           other.filename == this.filename &&
           other.mimeType == this.mimeType &&
           other.size == this.size &&
-          other.localPath == this.localPath);
+          other.localPath == this.localPath &&
+          other.remoteFetchId == this.remoteFetchId);
 }
 
 class AttachmentsCompanion extends UpdateCompanion<Attachment> {
@@ -2114,6 +2309,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
   final Value<String> mimeType;
   final Value<int> size;
   final Value<String> localPath;
+  final Value<String?> remoteFetchId;
   const AttachmentsCompanion({
     this.id = const Value.absent(),
     this.emailId = const Value.absent(),
@@ -2121,6 +2317,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.mimeType = const Value.absent(),
     this.size = const Value.absent(),
     this.localPath = const Value.absent(),
+    this.remoteFetchId = const Value.absent(),
   });
   AttachmentsCompanion.insert({
     this.id = const Value.absent(),
@@ -2129,6 +2326,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     required String mimeType,
     required int size,
     required String localPath,
+    this.remoteFetchId = const Value.absent(),
   }) : emailId = Value(emailId),
        filename = Value(filename),
        mimeType = Value(mimeType),
@@ -2141,6 +2339,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Expression<String>? mimeType,
     Expression<int>? size,
     Expression<String>? localPath,
+    Expression<String>? remoteFetchId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2149,6 +2348,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       if (mimeType != null) 'mime_type': mimeType,
       if (size != null) 'size': size,
       if (localPath != null) 'local_path': localPath,
+      if (remoteFetchId != null) 'remote_fetch_id': remoteFetchId,
     });
   }
 
@@ -2159,6 +2359,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Value<String>? mimeType,
     Value<int>? size,
     Value<String>? localPath,
+    Value<String?>? remoteFetchId,
   }) {
     return AttachmentsCompanion(
       id: id ?? this.id,
@@ -2167,6 +2368,7 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       mimeType: mimeType ?? this.mimeType,
       size: size ?? this.size,
       localPath: localPath ?? this.localPath,
+      remoteFetchId: remoteFetchId ?? this.remoteFetchId,
     );
   }
 
@@ -2191,6 +2393,9 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     if (localPath.present) {
       map['local_path'] = Variable<String>(localPath.value);
     }
+    if (remoteFetchId.present) {
+      map['remote_fetch_id'] = Variable<String>(remoteFetchId.value);
+    }
     return map;
   }
 
@@ -2202,7 +2407,8 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('filename: $filename, ')
           ..write('mimeType: $mimeType, ')
           ..write('size: $size, ')
-          ..write('localPath: $localPath')
+          ..write('localPath: $localPath, ')
+          ..write('remoteFetchId: $remoteFetchId')
           ..write(')'))
         .toString();
   }
@@ -2971,6 +3177,7 @@ typedef $$EmailsTableCreateCompanionBuilder =
     EmailsCompanion Function({
       Value<int> id,
       required int accountId,
+      Value<int?> remoteUid,
       required String messageId,
       required String mailbox,
       required String subject,
@@ -2978,6 +3185,7 @@ typedef $$EmailsTableCreateCompanionBuilder =
       required String fromEmail,
       required String toList,
       Value<String> ccList,
+      Value<String> bccList,
       required DateTime date,
       Value<String> preview,
       Value<String> bodyPlain,
@@ -2985,6 +3193,7 @@ typedef $$EmailsTableCreateCompanionBuilder =
       Value<bool> isRead,
       Value<bool> isStarred,
       Value<bool> isDeleted,
+      Value<bool> isDraft,
       Value<String> labels,
       Value<String> threadId,
       Value<bool> hasAttachments,
@@ -2994,6 +3203,7 @@ typedef $$EmailsTableUpdateCompanionBuilder =
     EmailsCompanion Function({
       Value<int> id,
       Value<int> accountId,
+      Value<int?> remoteUid,
       Value<String> messageId,
       Value<String> mailbox,
       Value<String> subject,
@@ -3001,6 +3211,7 @@ typedef $$EmailsTableUpdateCompanionBuilder =
       Value<String> fromEmail,
       Value<String> toList,
       Value<String> ccList,
+      Value<String> bccList,
       Value<DateTime> date,
       Value<String> preview,
       Value<String> bodyPlain,
@@ -3008,6 +3219,7 @@ typedef $$EmailsTableUpdateCompanionBuilder =
       Value<bool> isRead,
       Value<bool> isStarred,
       Value<bool> isDeleted,
+      Value<bool> isDraft,
       Value<String> labels,
       Value<String> threadId,
       Value<bool> hasAttachments,
@@ -3030,6 +3242,11 @@ class $$EmailsTableFilterComposer
 
   ColumnFilters<int> get accountId => $composableBuilder(
     column: $table.accountId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get remoteUid => $composableBuilder(
+    column: $table.remoteUid,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3068,6 +3285,11 @@ class $$EmailsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get bccList => $composableBuilder(
+    column: $table.bccList,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get date => $composableBuilder(
     column: $table.date,
     builder: (column) => ColumnFilters(column),
@@ -3100,6 +3322,11 @@ class $$EmailsTableFilterComposer
 
   ColumnFilters<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDraft => $composableBuilder(
+    column: $table.isDraft,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3143,6 +3370,11 @@ class $$EmailsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get remoteUid => $composableBuilder(
+    column: $table.remoteUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get messageId => $composableBuilder(
     column: $table.messageId,
     builder: (column) => ColumnOrderings(column),
@@ -3178,6 +3410,11 @@ class $$EmailsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get bccList => $composableBuilder(
+    column: $table.bccList,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get date => $composableBuilder(
     column: $table.date,
     builder: (column) => ColumnOrderings(column),
@@ -3210,6 +3447,11 @@ class $$EmailsTableOrderingComposer
 
   ColumnOrderings<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDraft => $composableBuilder(
+    column: $table.isDraft,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3249,6 +3491,9 @@ class $$EmailsTableAnnotationComposer
   GeneratedColumn<int> get accountId =>
       $composableBuilder(column: $table.accountId, builder: (column) => column);
 
+  GeneratedColumn<int> get remoteUid =>
+      $composableBuilder(column: $table.remoteUid, builder: (column) => column);
+
   GeneratedColumn<String> get messageId =>
       $composableBuilder(column: $table.messageId, builder: (column) => column);
 
@@ -3270,6 +3515,9 @@ class $$EmailsTableAnnotationComposer
   GeneratedColumn<String> get ccList =>
       $composableBuilder(column: $table.ccList, builder: (column) => column);
 
+  GeneratedColumn<String> get bccList =>
+      $composableBuilder(column: $table.bccList, builder: (column) => column);
+
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
@@ -3290,6 +3538,9 @@ class $$EmailsTableAnnotationComposer
 
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDraft =>
+      $composableBuilder(column: $table.isDraft, builder: (column) => column);
 
   GeneratedColumn<String> get labels =>
       $composableBuilder(column: $table.labels, builder: (column) => column);
@@ -3336,6 +3587,7 @@ class $$EmailsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<int> accountId = const Value.absent(),
+                Value<int?> remoteUid = const Value.absent(),
                 Value<String> messageId = const Value.absent(),
                 Value<String> mailbox = const Value.absent(),
                 Value<String> subject = const Value.absent(),
@@ -3343,6 +3595,7 @@ class $$EmailsTableTableManager
                 Value<String> fromEmail = const Value.absent(),
                 Value<String> toList = const Value.absent(),
                 Value<String> ccList = const Value.absent(),
+                Value<String> bccList = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
                 Value<String> preview = const Value.absent(),
                 Value<String> bodyPlain = const Value.absent(),
@@ -3350,6 +3603,7 @@ class $$EmailsTableTableManager
                 Value<bool> isRead = const Value.absent(),
                 Value<bool> isStarred = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<bool> isDraft = const Value.absent(),
                 Value<String> labels = const Value.absent(),
                 Value<String> threadId = const Value.absent(),
                 Value<bool> hasAttachments = const Value.absent(),
@@ -3357,6 +3611,7 @@ class $$EmailsTableTableManager
               }) => EmailsCompanion(
                 id: id,
                 accountId: accountId,
+                remoteUid: remoteUid,
                 messageId: messageId,
                 mailbox: mailbox,
                 subject: subject,
@@ -3364,6 +3619,7 @@ class $$EmailsTableTableManager
                 fromEmail: fromEmail,
                 toList: toList,
                 ccList: ccList,
+                bccList: bccList,
                 date: date,
                 preview: preview,
                 bodyPlain: bodyPlain,
@@ -3371,6 +3627,7 @@ class $$EmailsTableTableManager
                 isRead: isRead,
                 isStarred: isStarred,
                 isDeleted: isDeleted,
+                isDraft: isDraft,
                 labels: labels,
                 threadId: threadId,
                 hasAttachments: hasAttachments,
@@ -3380,6 +3637,7 @@ class $$EmailsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required int accountId,
+                Value<int?> remoteUid = const Value.absent(),
                 required String messageId,
                 required String mailbox,
                 required String subject,
@@ -3387,6 +3645,7 @@ class $$EmailsTableTableManager
                 required String fromEmail,
                 required String toList,
                 Value<String> ccList = const Value.absent(),
+                Value<String> bccList = const Value.absent(),
                 required DateTime date,
                 Value<String> preview = const Value.absent(),
                 Value<String> bodyPlain = const Value.absent(),
@@ -3394,6 +3653,7 @@ class $$EmailsTableTableManager
                 Value<bool> isRead = const Value.absent(),
                 Value<bool> isStarred = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<bool> isDraft = const Value.absent(),
                 Value<String> labels = const Value.absent(),
                 Value<String> threadId = const Value.absent(),
                 Value<bool> hasAttachments = const Value.absent(),
@@ -3401,6 +3661,7 @@ class $$EmailsTableTableManager
               }) => EmailsCompanion.insert(
                 id: id,
                 accountId: accountId,
+                remoteUid: remoteUid,
                 messageId: messageId,
                 mailbox: mailbox,
                 subject: subject,
@@ -3408,6 +3669,7 @@ class $$EmailsTableTableManager
                 fromEmail: fromEmail,
                 toList: toList,
                 ccList: ccList,
+                bccList: bccList,
                 date: date,
                 preview: preview,
                 bodyPlain: bodyPlain,
@@ -3415,6 +3677,7 @@ class $$EmailsTableTableManager
                 isRead: isRead,
                 isStarred: isStarred,
                 isDeleted: isDeleted,
+                isDraft: isDraft,
                 labels: labels,
                 threadId: threadId,
                 hasAttachments: hasAttachments,
@@ -3450,6 +3713,7 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       required String mimeType,
       required int size,
       required String localPath,
+      Value<String?> remoteFetchId,
     });
 typedef $$AttachmentsTableUpdateCompanionBuilder =
     AttachmentsCompanion Function({
@@ -3459,6 +3723,7 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<String> mimeType,
       Value<int> size,
       Value<String> localPath,
+      Value<String?> remoteFetchId,
     });
 
 class $$AttachmentsTableFilterComposer
@@ -3497,6 +3762,11 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<String> get localPath => $composableBuilder(
     column: $table.localPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteFetchId => $composableBuilder(
+    column: $table.remoteFetchId,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -3539,6 +3809,11 @@ class $$AttachmentsTableOrderingComposer
     column: $table.localPath,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get remoteFetchId => $composableBuilder(
+    column: $table.remoteFetchId,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AttachmentsTableAnnotationComposer
@@ -3567,6 +3842,11 @@ class $$AttachmentsTableAnnotationComposer
 
   GeneratedColumn<String> get localPath =>
       $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteFetchId => $composableBuilder(
+    column: $table.remoteFetchId,
+    builder: (column) => column,
+  );
 }
 
 class $$AttachmentsTableTableManager
@@ -3606,6 +3886,7 @@ class $$AttachmentsTableTableManager
                 Value<String> mimeType = const Value.absent(),
                 Value<int> size = const Value.absent(),
                 Value<String> localPath = const Value.absent(),
+                Value<String?> remoteFetchId = const Value.absent(),
               }) => AttachmentsCompanion(
                 id: id,
                 emailId: emailId,
@@ -3613,6 +3894,7 @@ class $$AttachmentsTableTableManager
                 mimeType: mimeType,
                 size: size,
                 localPath: localPath,
+                remoteFetchId: remoteFetchId,
               ),
           createCompanionCallback:
               ({
@@ -3622,6 +3904,7 @@ class $$AttachmentsTableTableManager
                 required String mimeType,
                 required int size,
                 required String localPath,
+                Value<String?> remoteFetchId = const Value.absent(),
               }) => AttachmentsCompanion.insert(
                 id: id,
                 emailId: emailId,
@@ -3629,6 +3912,7 @@ class $$AttachmentsTableTableManager
                 mimeType: mimeType,
                 size: size,
                 localPath: localPath,
+                remoteFetchId: remoteFetchId,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

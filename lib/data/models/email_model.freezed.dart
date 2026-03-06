@@ -275,7 +275,7 @@ as String,
 /// @nodoc
 mixin _$EmailModel {
 
- int get id; int get accountId; String get messageId; String get mailbox; String get subject; String get fromName; String get fromEmail; List<EmailAddressModel> get to; List<EmailAddressModel> get cc; DateTime get date; String get preview; String get bodyPlain; String get bodyHtml; bool get isRead; bool get isStarred; bool get isDeleted; List<String> get labels; String get threadId; bool get hasAttachments;
+ int get id; int get accountId; int? get remoteUid; String get messageId; String get mailbox; String get subject; String get fromName; String get fromEmail; List<EmailAddressModel> get to; List<EmailAddressModel> get cc; List<EmailAddressModel> get bcc; DateTime get date; String get preview; String get bodyPlain; String get bodyHtml; bool get isRead; bool get isStarred; bool get isDeleted; bool get isDraft; List<String> get labels; String get threadId; bool get hasAttachments;
 /// Create a copy of EmailModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -288,16 +288,16 @@ $EmailModelCopyWith<EmailModel> get copyWith => _$EmailModelCopyWithImpl<EmailMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EmailModel&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.mailbox, mailbox) || other.mailbox == mailbox)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.fromName, fromName) || other.fromName == fromName)&&(identical(other.fromEmail, fromEmail) || other.fromEmail == fromEmail)&&const DeepCollectionEquality().equals(other.to, to)&&const DeepCollectionEquality().equals(other.cc, cc)&&(identical(other.date, date) || other.date == date)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.bodyPlain, bodyPlain) || other.bodyPlain == bodyPlain)&&(identical(other.bodyHtml, bodyHtml) || other.bodyHtml == bodyHtml)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isStarred, isStarred) || other.isStarred == isStarred)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other.labels, labels)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.hasAttachments, hasAttachments) || other.hasAttachments == hasAttachments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EmailModel&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.remoteUid, remoteUid) || other.remoteUid == remoteUid)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.mailbox, mailbox) || other.mailbox == mailbox)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.fromName, fromName) || other.fromName == fromName)&&(identical(other.fromEmail, fromEmail) || other.fromEmail == fromEmail)&&const DeepCollectionEquality().equals(other.to, to)&&const DeepCollectionEquality().equals(other.cc, cc)&&const DeepCollectionEquality().equals(other.bcc, bcc)&&(identical(other.date, date) || other.date == date)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.bodyPlain, bodyPlain) || other.bodyPlain == bodyPlain)&&(identical(other.bodyHtml, bodyHtml) || other.bodyHtml == bodyHtml)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isStarred, isStarred) || other.isStarred == isStarred)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.isDraft, isDraft) || other.isDraft == isDraft)&&const DeepCollectionEquality().equals(other.labels, labels)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.hasAttachments, hasAttachments) || other.hasAttachments == hasAttachments));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,accountId,messageId,mailbox,subject,fromName,fromEmail,const DeepCollectionEquality().hash(to),const DeepCollectionEquality().hash(cc),date,preview,bodyPlain,bodyHtml,isRead,isStarred,isDeleted,const DeepCollectionEquality().hash(labels),threadId,hasAttachments]);
+int get hashCode => Object.hashAll([runtimeType,id,accountId,remoteUid,messageId,mailbox,subject,fromName,fromEmail,const DeepCollectionEquality().hash(to),const DeepCollectionEquality().hash(cc),const DeepCollectionEquality().hash(bcc),date,preview,bodyPlain,bodyHtml,isRead,isStarred,isDeleted,isDraft,const DeepCollectionEquality().hash(labels),threadId,hasAttachments]);
 
 @override
 String toString() {
-  return 'EmailModel(id: $id, accountId: $accountId, messageId: $messageId, mailbox: $mailbox, subject: $subject, fromName: $fromName, fromEmail: $fromEmail, to: $to, cc: $cc, date: $date, preview: $preview, bodyPlain: $bodyPlain, bodyHtml: $bodyHtml, isRead: $isRead, isStarred: $isStarred, isDeleted: $isDeleted, labels: $labels, threadId: $threadId, hasAttachments: $hasAttachments)';
+  return 'EmailModel(id: $id, accountId: $accountId, remoteUid: $remoteUid, messageId: $messageId, mailbox: $mailbox, subject: $subject, fromName: $fromName, fromEmail: $fromEmail, to: $to, cc: $cc, bcc: $bcc, date: $date, preview: $preview, bodyPlain: $bodyPlain, bodyHtml: $bodyHtml, isRead: $isRead, isStarred: $isStarred, isDeleted: $isDeleted, isDraft: $isDraft, labels: $labels, threadId: $threadId, hasAttachments: $hasAttachments)';
 }
 
 
@@ -308,7 +308,7 @@ abstract mixin class $EmailModelCopyWith<$Res>  {
   factory $EmailModelCopyWith(EmailModel value, $Res Function(EmailModel) _then) = _$EmailModelCopyWithImpl;
 @useResult
 $Res call({
- int id, int accountId, String messageId, String mailbox, String subject, String fromName, String fromEmail, List<EmailAddressModel> to, List<EmailAddressModel> cc, DateTime date, String preview, String bodyPlain, String bodyHtml, bool isRead, bool isStarred, bool isDeleted, List<String> labels, String threadId, bool hasAttachments
+ int id, int accountId, int? remoteUid, String messageId, String mailbox, String subject, String fromName, String fromEmail, List<EmailAddressModel> to, List<EmailAddressModel> cc, List<EmailAddressModel> bcc, DateTime date, String preview, String bodyPlain, String bodyHtml, bool isRead, bool isStarred, bool isDeleted, bool isDraft, List<String> labels, String threadId, bool hasAttachments
 });
 
 
@@ -325,17 +325,19 @@ class _$EmailModelCopyWithImpl<$Res>
 
 /// Create a copy of EmailModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? messageId = null,Object? mailbox = null,Object? subject = null,Object? fromName = null,Object? fromEmail = null,Object? to = null,Object? cc = null,Object? date = null,Object? preview = null,Object? bodyPlain = null,Object? bodyHtml = null,Object? isRead = null,Object? isStarred = null,Object? isDeleted = null,Object? labels = null,Object? threadId = null,Object? hasAttachments = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accountId = null,Object? remoteUid = freezed,Object? messageId = null,Object? mailbox = null,Object? subject = null,Object? fromName = null,Object? fromEmail = null,Object? to = null,Object? cc = null,Object? bcc = null,Object? date = null,Object? preview = null,Object? bodyPlain = null,Object? bodyHtml = null,Object? isRead = null,Object? isStarred = null,Object? isDeleted = null,Object? isDraft = null,Object? labels = null,Object? threadId = null,Object? hasAttachments = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
-as int,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
+as int,remoteUid: freezed == remoteUid ? _self.remoteUid : remoteUid // ignore: cast_nullable_to_non_nullable
+as int?,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,mailbox: null == mailbox ? _self.mailbox : mailbox // ignore: cast_nullable_to_non_nullable
 as String,subject: null == subject ? _self.subject : subject // ignore: cast_nullable_to_non_nullable
 as String,fromName: null == fromName ? _self.fromName : fromName // ignore: cast_nullable_to_non_nullable
 as String,fromEmail: null == fromEmail ? _self.fromEmail : fromEmail // ignore: cast_nullable_to_non_nullable
 as String,to: null == to ? _self.to : to // ignore: cast_nullable_to_non_nullable
 as List<EmailAddressModel>,cc: null == cc ? _self.cc : cc // ignore: cast_nullable_to_non_nullable
+as List<EmailAddressModel>,bcc: null == bcc ? _self.bcc : bcc // ignore: cast_nullable_to_non_nullable
 as List<EmailAddressModel>,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,preview: null == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
 as String,bodyPlain: null == bodyPlain ? _self.bodyPlain : bodyPlain // ignore: cast_nullable_to_non_nullable
@@ -343,6 +345,7 @@ as String,bodyHtml: null == bodyHtml ? _self.bodyHtml : bodyHtml // ignore: cast
 as String,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,isStarred: null == isStarred ? _self.isStarred : isStarred // ignore: cast_nullable_to_non_nullable
 as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,isDraft: null == isDraft ? _self.isDraft : isDraft // ignore: cast_nullable_to_non_nullable
 as bool,labels: null == labels ? _self.labels : labels // ignore: cast_nullable_to_non_nullable
 as List<String>,threadId: null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
 as String,hasAttachments: null == hasAttachments ? _self.hasAttachments : hasAttachments // ignore: cast_nullable_to_non_nullable
@@ -428,10 +431,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int accountId,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  List<String> labels,  String threadId,  bool hasAttachments)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  int accountId,  int? remoteUid,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  List<EmailAddressModel> bcc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  bool isDraft,  List<String> labels,  String threadId,  bool hasAttachments)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EmailModel() when $default != null:
-return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.labels,_that.threadId,_that.hasAttachments);case _:
+return $default(_that.id,_that.accountId,_that.remoteUid,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.bcc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.isDraft,_that.labels,_that.threadId,_that.hasAttachments);case _:
   return orElse();
 
 }
@@ -449,10 +452,10 @@ return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.sub
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int accountId,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  List<String> labels,  String threadId,  bool hasAttachments)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  int accountId,  int? remoteUid,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  List<EmailAddressModel> bcc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  bool isDraft,  List<String> labels,  String threadId,  bool hasAttachments)  $default,) {final _that = this;
 switch (_that) {
 case _EmailModel():
-return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.labels,_that.threadId,_that.hasAttachments);}
+return $default(_that.id,_that.accountId,_that.remoteUid,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.bcc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.isDraft,_that.labels,_that.threadId,_that.hasAttachments);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -466,10 +469,10 @@ return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.sub
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int accountId,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  List<String> labels,  String threadId,  bool hasAttachments)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  int accountId,  int? remoteUid,  String messageId,  String mailbox,  String subject,  String fromName,  String fromEmail,  List<EmailAddressModel> to,  List<EmailAddressModel> cc,  List<EmailAddressModel> bcc,  DateTime date,  String preview,  String bodyPlain,  String bodyHtml,  bool isRead,  bool isStarred,  bool isDeleted,  bool isDraft,  List<String> labels,  String threadId,  bool hasAttachments)?  $default,) {final _that = this;
 switch (_that) {
 case _EmailModel() when $default != null:
-return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.labels,_that.threadId,_that.hasAttachments);case _:
+return $default(_that.id,_that.accountId,_that.remoteUid,_that.messageId,_that.mailbox,_that.subject,_that.fromName,_that.fromEmail,_that.to,_that.cc,_that.bcc,_that.date,_that.preview,_that.bodyPlain,_that.bodyHtml,_that.isRead,_that.isStarred,_that.isDeleted,_that.isDraft,_that.labels,_that.threadId,_that.hasAttachments);case _:
   return null;
 
 }
@@ -481,11 +484,12 @@ return $default(_that.id,_that.accountId,_that.messageId,_that.mailbox,_that.sub
 @JsonSerializable()
 
 class _EmailModel implements EmailModel {
-  const _EmailModel({required this.id, required this.accountId, required this.messageId, required this.mailbox, required this.subject, required this.fromName, required this.fromEmail, required final  List<EmailAddressModel> to, required final  List<EmailAddressModel> cc, required this.date, required this.preview, required this.bodyPlain, required this.bodyHtml, required this.isRead, required this.isStarred, required this.isDeleted, required final  List<String> labels, required this.threadId, required this.hasAttachments}): _to = to,_cc = cc,_labels = labels;
+  const _EmailModel({required this.id, required this.accountId, this.remoteUid, required this.messageId, required this.mailbox, required this.subject, required this.fromName, required this.fromEmail, required final  List<EmailAddressModel> to, required final  List<EmailAddressModel> cc, required final  List<EmailAddressModel> bcc, required this.date, required this.preview, required this.bodyPlain, required this.bodyHtml, required this.isRead, required this.isStarred, required this.isDeleted, required this.isDraft, required final  List<String> labels, required this.threadId, required this.hasAttachments}): _to = to,_cc = cc,_bcc = bcc,_labels = labels;
   factory _EmailModel.fromJson(Map<String, dynamic> json) => _$EmailModelFromJson(json);
 
 @override final  int id;
 @override final  int accountId;
+@override final  int? remoteUid;
 @override final  String messageId;
 @override final  String mailbox;
 @override final  String subject;
@@ -505,6 +509,13 @@ class _EmailModel implements EmailModel {
   return EqualUnmodifiableListView(_cc);
 }
 
+ final  List<EmailAddressModel> _bcc;
+@override List<EmailAddressModel> get bcc {
+  if (_bcc is EqualUnmodifiableListView) return _bcc;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bcc);
+}
+
 @override final  DateTime date;
 @override final  String preview;
 @override final  String bodyPlain;
@@ -512,6 +523,7 @@ class _EmailModel implements EmailModel {
 @override final  bool isRead;
 @override final  bool isStarred;
 @override final  bool isDeleted;
+@override final  bool isDraft;
  final  List<String> _labels;
 @override List<String> get labels {
   if (_labels is EqualUnmodifiableListView) return _labels;
@@ -535,16 +547,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EmailModel&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.mailbox, mailbox) || other.mailbox == mailbox)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.fromName, fromName) || other.fromName == fromName)&&(identical(other.fromEmail, fromEmail) || other.fromEmail == fromEmail)&&const DeepCollectionEquality().equals(other._to, _to)&&const DeepCollectionEquality().equals(other._cc, _cc)&&(identical(other.date, date) || other.date == date)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.bodyPlain, bodyPlain) || other.bodyPlain == bodyPlain)&&(identical(other.bodyHtml, bodyHtml) || other.bodyHtml == bodyHtml)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isStarred, isStarred) || other.isStarred == isStarred)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&const DeepCollectionEquality().equals(other._labels, _labels)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.hasAttachments, hasAttachments) || other.hasAttachments == hasAttachments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EmailModel&&(identical(other.id, id) || other.id == id)&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.remoteUid, remoteUid) || other.remoteUid == remoteUid)&&(identical(other.messageId, messageId) || other.messageId == messageId)&&(identical(other.mailbox, mailbox) || other.mailbox == mailbox)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.fromName, fromName) || other.fromName == fromName)&&(identical(other.fromEmail, fromEmail) || other.fromEmail == fromEmail)&&const DeepCollectionEquality().equals(other._to, _to)&&const DeepCollectionEquality().equals(other._cc, _cc)&&const DeepCollectionEquality().equals(other._bcc, _bcc)&&(identical(other.date, date) || other.date == date)&&(identical(other.preview, preview) || other.preview == preview)&&(identical(other.bodyPlain, bodyPlain) || other.bodyPlain == bodyPlain)&&(identical(other.bodyHtml, bodyHtml) || other.bodyHtml == bodyHtml)&&(identical(other.isRead, isRead) || other.isRead == isRead)&&(identical(other.isStarred, isStarred) || other.isStarred == isStarred)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.isDraft, isDraft) || other.isDraft == isDraft)&&const DeepCollectionEquality().equals(other._labels, _labels)&&(identical(other.threadId, threadId) || other.threadId == threadId)&&(identical(other.hasAttachments, hasAttachments) || other.hasAttachments == hasAttachments));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,accountId,messageId,mailbox,subject,fromName,fromEmail,const DeepCollectionEquality().hash(_to),const DeepCollectionEquality().hash(_cc),date,preview,bodyPlain,bodyHtml,isRead,isStarred,isDeleted,const DeepCollectionEquality().hash(_labels),threadId,hasAttachments]);
+int get hashCode => Object.hashAll([runtimeType,id,accountId,remoteUid,messageId,mailbox,subject,fromName,fromEmail,const DeepCollectionEquality().hash(_to),const DeepCollectionEquality().hash(_cc),const DeepCollectionEquality().hash(_bcc),date,preview,bodyPlain,bodyHtml,isRead,isStarred,isDeleted,isDraft,const DeepCollectionEquality().hash(_labels),threadId,hasAttachments]);
 
 @override
 String toString() {
-  return 'EmailModel(id: $id, accountId: $accountId, messageId: $messageId, mailbox: $mailbox, subject: $subject, fromName: $fromName, fromEmail: $fromEmail, to: $to, cc: $cc, date: $date, preview: $preview, bodyPlain: $bodyPlain, bodyHtml: $bodyHtml, isRead: $isRead, isStarred: $isStarred, isDeleted: $isDeleted, labels: $labels, threadId: $threadId, hasAttachments: $hasAttachments)';
+  return 'EmailModel(id: $id, accountId: $accountId, remoteUid: $remoteUid, messageId: $messageId, mailbox: $mailbox, subject: $subject, fromName: $fromName, fromEmail: $fromEmail, to: $to, cc: $cc, bcc: $bcc, date: $date, preview: $preview, bodyPlain: $bodyPlain, bodyHtml: $bodyHtml, isRead: $isRead, isStarred: $isStarred, isDeleted: $isDeleted, isDraft: $isDraft, labels: $labels, threadId: $threadId, hasAttachments: $hasAttachments)';
 }
 
 
@@ -555,7 +567,7 @@ abstract mixin class _$EmailModelCopyWith<$Res> implements $EmailModelCopyWith<$
   factory _$EmailModelCopyWith(_EmailModel value, $Res Function(_EmailModel) _then) = __$EmailModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, int accountId, String messageId, String mailbox, String subject, String fromName, String fromEmail, List<EmailAddressModel> to, List<EmailAddressModel> cc, DateTime date, String preview, String bodyPlain, String bodyHtml, bool isRead, bool isStarred, bool isDeleted, List<String> labels, String threadId, bool hasAttachments
+ int id, int accountId, int? remoteUid, String messageId, String mailbox, String subject, String fromName, String fromEmail, List<EmailAddressModel> to, List<EmailAddressModel> cc, List<EmailAddressModel> bcc, DateTime date, String preview, String bodyPlain, String bodyHtml, bool isRead, bool isStarred, bool isDeleted, bool isDraft, List<String> labels, String threadId, bool hasAttachments
 });
 
 
@@ -572,17 +584,19 @@ class __$EmailModelCopyWithImpl<$Res>
 
 /// Create a copy of EmailModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? messageId = null,Object? mailbox = null,Object? subject = null,Object? fromName = null,Object? fromEmail = null,Object? to = null,Object? cc = null,Object? date = null,Object? preview = null,Object? bodyPlain = null,Object? bodyHtml = null,Object? isRead = null,Object? isStarred = null,Object? isDeleted = null,Object? labels = null,Object? threadId = null,Object? hasAttachments = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accountId = null,Object? remoteUid = freezed,Object? messageId = null,Object? mailbox = null,Object? subject = null,Object? fromName = null,Object? fromEmail = null,Object? to = null,Object? cc = null,Object? bcc = null,Object? date = null,Object? preview = null,Object? bodyPlain = null,Object? bodyHtml = null,Object? isRead = null,Object? isStarred = null,Object? isDeleted = null,Object? isDraft = null,Object? labels = null,Object? threadId = null,Object? hasAttachments = null,}) {
   return _then(_EmailModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
-as int,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
+as int,remoteUid: freezed == remoteUid ? _self.remoteUid : remoteUid // ignore: cast_nullable_to_non_nullable
+as int?,messageId: null == messageId ? _self.messageId : messageId // ignore: cast_nullable_to_non_nullable
 as String,mailbox: null == mailbox ? _self.mailbox : mailbox // ignore: cast_nullable_to_non_nullable
 as String,subject: null == subject ? _self.subject : subject // ignore: cast_nullable_to_non_nullable
 as String,fromName: null == fromName ? _self.fromName : fromName // ignore: cast_nullable_to_non_nullable
 as String,fromEmail: null == fromEmail ? _self.fromEmail : fromEmail // ignore: cast_nullable_to_non_nullable
 as String,to: null == to ? _self._to : to // ignore: cast_nullable_to_non_nullable
 as List<EmailAddressModel>,cc: null == cc ? _self._cc : cc // ignore: cast_nullable_to_non_nullable
+as List<EmailAddressModel>,bcc: null == bcc ? _self._bcc : bcc // ignore: cast_nullable_to_non_nullable
 as List<EmailAddressModel>,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,preview: null == preview ? _self.preview : preview // ignore: cast_nullable_to_non_nullable
 as String,bodyPlain: null == bodyPlain ? _self.bodyPlain : bodyPlain // ignore: cast_nullable_to_non_nullable
@@ -590,6 +604,7 @@ as String,bodyHtml: null == bodyHtml ? _self.bodyHtml : bodyHtml // ignore: cast
 as String,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
 as bool,isStarred: null == isStarred ? _self.isStarred : isStarred // ignore: cast_nullable_to_non_nullable
 as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
+as bool,isDraft: null == isDraft ? _self.isDraft : isDraft // ignore: cast_nullable_to_non_nullable
 as bool,labels: null == labels ? _self._labels : labels // ignore: cast_nullable_to_non_nullable
 as List<String>,threadId: null == threadId ? _self.threadId : threadId // ignore: cast_nullable_to_non_nullable
 as String,hasAttachments: null == hasAttachments ? _self.hasAttachments : hasAttachments // ignore: cast_nullable_to_non_nullable

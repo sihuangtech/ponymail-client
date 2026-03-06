@@ -18,6 +18,7 @@ Map<String, dynamic> _$EmailAddressModelToJson(_EmailAddressModel instance) =>
 _EmailModel _$EmailModelFromJson(Map<String, dynamic> json) => _EmailModel(
   id: (json['id'] as num).toInt(),
   accountId: (json['accountId'] as num).toInt(),
+  remoteUid: (json['remoteUid'] as num?)?.toInt(),
   messageId: json['messageId'] as String,
   mailbox: json['mailbox'] as String,
   subject: json['subject'] as String,
@@ -29,6 +30,9 @@ _EmailModel _$EmailModelFromJson(Map<String, dynamic> json) => _EmailModel(
   cc: (json['cc'] as List<dynamic>)
       .map((e) => EmailAddressModel.fromJson(e as Map<String, dynamic>))
       .toList(),
+  bcc: (json['bcc'] as List<dynamic>)
+      .map((e) => EmailAddressModel.fromJson(e as Map<String, dynamic>))
+      .toList(),
   date: DateTime.parse(json['date'] as String),
   preview: json['preview'] as String,
   bodyPlain: json['bodyPlain'] as String,
@@ -36,6 +40,7 @@ _EmailModel _$EmailModelFromJson(Map<String, dynamic> json) => _EmailModel(
   isRead: json['isRead'] as bool,
   isStarred: json['isStarred'] as bool,
   isDeleted: json['isDeleted'] as bool,
+  isDraft: json['isDraft'] as bool,
   labels: (json['labels'] as List<dynamic>).map((e) => e as String).toList(),
   threadId: json['threadId'] as String,
   hasAttachments: json['hasAttachments'] as bool,
@@ -45,6 +50,7 @@ Map<String, dynamic> _$EmailModelToJson(_EmailModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'accountId': instance.accountId,
+      'remoteUid': instance.remoteUid,
       'messageId': instance.messageId,
       'mailbox': instance.mailbox,
       'subject': instance.subject,
@@ -52,6 +58,7 @@ Map<String, dynamic> _$EmailModelToJson(_EmailModel instance) =>
       'fromEmail': instance.fromEmail,
       'to': instance.to,
       'cc': instance.cc,
+      'bcc': instance.bcc,
       'date': instance.date.toIso8601String(),
       'preview': instance.preview,
       'bodyPlain': instance.bodyPlain,
@@ -59,6 +66,7 @@ Map<String, dynamic> _$EmailModelToJson(_EmailModel instance) =>
       'isRead': instance.isRead,
       'isStarred': instance.isStarred,
       'isDeleted': instance.isDeleted,
+      'isDraft': instance.isDraft,
       'labels': instance.labels,
       'threadId': instance.threadId,
       'hasAttachments': instance.hasAttachments,
