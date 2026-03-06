@@ -24,9 +24,19 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
   Future<List<EmailModel>> build() async {
     final repository = ref.watch(mailRepositoryProvider);
     final currentAccount = ref.watch(currentAccountProvider);
+    final accounts = ref.watch(accountProvider).value ?? const [];
     final selectedMailbox = ref.watch(selectedMailboxProvider);
     if (currentAccount == null) {
-      await repository.seedDemoMailboxData();
+      if (accounts.isEmpty) {
+        await repository.seedDemoMailboxData();
+      } else {
+        for (final account in accounts) {
+          await repository.syncInbox(
+            account,
+            mailboxPath: selectedMailbox ?? 'INBOX',
+          );
+        }
+      }
       final result = await repository.getInboxEmails();
       return result.data ?? const <EmailModel>[];
     }
@@ -77,8 +87,13 @@ final emailDetailProvider =
 final mailboxProvider = FutureProvider<List<MailboxModel>>((ref) async {
   final repository = ref.watch(mailRepositoryProvider);
   final currentAccount = ref.watch(currentAccountProvider);
+  final accounts = ref.watch(accountProvider).value ?? const [];
   if (currentAccount != null) {
     await repository.startRealtimeSync(currentAccount);
+  } else {
+    for (final account in accounts) {
+      await repository.startRealtimeSync(account);
+    }
   }
   final result = await repository.getMailboxes(
     accountId: ref.watch(selectedAccountIdProvider),
