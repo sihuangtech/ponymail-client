@@ -5,4 +5,5 @@ abstract class AccountRepository {
   Future<Result<AccountModel>> addAccount(AccountModel account, String password);
   Future<Result<List<AccountModel>>> getAccounts();
   Future<Result<void>> deleteAccount(int accountId);
+  Future<Result<void>> seedDemoAccounts();
 }

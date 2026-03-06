@@ -1,3 +1,5 @@
+import 'package:drift/drift.dart';
+
 import '../../core/utils/result.dart';
 import '../../data/database/database.dart';
 import '../../data/datasources/remote/imap_service.dart';
@@ -20,24 +22,26 @@ class SyncInboxUseCase {
       final fetchCount = sequence > 50 ? 50 : sequence;
       if (fetchCount == 0) return Result.ok(0);
 
-      final messages = await client.fetchMessages(MessageSequence.fromLast(fetchCount));
+      final messages = await client.fetchMessages(count: fetchCount);
       for (final m in messages) {
+        final plainText = m.decodeTextPlainPart() ?? '';
         await _database.into(_database.emails).insert(
               EmailsCompanion.insert(
                 accountId: account.id,
-                messageId: m.decodeMessageId() ?? m.uid.toString(),
+                messageId: m.decodeHeaderValue('message-id') ?? m.hashCode.toString(),
                 mailbox: 'INBOX',
                 subject: m.decodeSubject() ?? '(无主题)',
                 fromName: m.from?.isNotEmpty == true ? m.from!.first.personalName ?? '' : '',
-                fromEmail: m.from?.isNotEmpty == true ? m.from!.first.email ?? '' : '',
+                fromEmail: m.from?.isNotEmpty == true ? m.from!.first.email : '',
                 toList: '[]',
                 date: m.decodeDate() ?? DateTime.now(),
-                bodyPlain: m.decodeTextPlainPart() ?? '',
-                bodyHtml: m.decodeTextHtmlPart() ?? '',
+                preview: Value(plainText.length > 120 ? plainText.substring(0, 120) : plainText),
+                bodyPlain: Value(plainText),
+                bodyHtml: Value(m.decodeTextHtmlPart() ?? ''),
               ),
             );
       }
-      await client.logout();
+      await client.disconnect();
       return Result.ok(messages.length);
     } catch (e) {
       return Result.err('收件箱同步失败: $e');

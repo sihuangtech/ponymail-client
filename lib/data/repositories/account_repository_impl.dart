@@ -1,15 +1,22 @@
+import 'package:drift/drift.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../core/utils/result.dart';
 import '../database/database.dart';
+import '../datasources/local/demo_mail_local_source.dart';
 import '../models/account_model.dart';
 import 'account_repository.dart';
 
 class AccountRepositoryImpl implements AccountRepository {
-  AccountRepositoryImpl(this._database, this._secureStorage);
+  AccountRepositoryImpl(
+    this._database,
+    this._secureStorage,
+    this._demoSource,
+  );
 
   final AppDatabase _database;
   final FlutterSecureStorage _secureStorage;
+  final DemoMailLocalSource _demoSource;
 
   @override
   Future<Result<AccountModel>> addAccount(AccountModel account, String password) async {
@@ -21,13 +28,13 @@ class AccountRepositoryImpl implements AccountRepository {
               displayName: account.displayName,
               imapHost: account.imapHost,
               imapPort: account.imapPort,
-              imapSsl: account.imapSsl,
+              imapSsl: Value(account.imapSsl),
               smtpHost: account.smtpHost,
               smtpPort: account.smtpPort,
-              smtpSsl: account.smtpSsl,
+              smtpSsl: Value(account.smtpSsl),
               passwordKey: account.passwordKey,
               color: account.color,
-              signature: account.signature,
+              signature: Value(account.signature),
             ),
           );
       return Result.ok(account.copyWith(id: id));
@@ -49,29 +56,27 @@ class AccountRepositoryImpl implements AccountRepository {
   @override
   Future<Result<List<AccountModel>>> getAccounts() async {
     try {
-      final rows = await _database.select(_database.accounts).get();
-      final accounts = rows
-          .map(
-            (row) => AccountModel(
-              id: row.id,
-              email: row.email,
-              displayName: row.displayName,
-              imapHost: row.imapHost,
-              imapPort: row.imapPort,
-              imapSsl: row.imapSsl,
-              smtpHost: row.smtpHost,
-              smtpPort: row.smtpPort,
-              smtpSsl: row.smtpSsl,
-              passwordKey: row.passwordKey,
-              color: row.color,
-              signature: row.signature,
-              createdAt: row.createdAt,
-            ),
-          )
-          .toList();
+      final accounts = await _database.getAccountModels();
       return Result.ok(accounts);
     } catch (e) {
       return Result.err('查询账户失败: $e');
+    }
+  }
+
+  @override
+  Future<Result<void>> seedDemoAccounts() async {
+    try {
+      final accounts = _demoSource.buildAccounts();
+      await _database.replaceAccounts(accounts);
+      for (final account in accounts) {
+        await _secureStorage.write(
+          key: account.passwordKey,
+          value: 'demo-password',
+        );
+      }
+      return Result.ok(null);
+    } catch (e) {
+      return Result.err('初始化演示账户失败: $e');
     }
   }
 }

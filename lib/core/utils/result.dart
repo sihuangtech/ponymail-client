@@ -1,10 +1,14 @@
 class Failure {
-  Failure(this.message);
+  const Failure(this.message);
+
   final String message;
 }
 
 class Result<T> {
-  Result._({this.data, this.failure});
+  const Result._({
+    this.data,
+    this.failure,
+  });
 
   final T? data;
   final Failure? failure;
@@ -12,5 +16,7 @@ class Result<T> {
   bool get isSuccess => failure == null;
 
   static Result<T> ok<T>(T data) => Result._(data: data);
-  static Result<T> err<T>(String message) => Result._(failure: Failure(message));
+
+  static Result<T> err<T>(String message) =>
+      Result._(failure: Failure(message));
 }

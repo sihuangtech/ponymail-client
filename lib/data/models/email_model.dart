@@ -1,21 +1,43 @@
-class EmailModel {
-  EmailModel({
-    required this.id,
-    required this.subject,
-    required this.fromName,
-    required this.fromEmail,
-    required this.preview,
-    required this.date,
-    this.isRead = false,
-    this.isStarred = false,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final int id;
-  final String subject;
-  final String fromName;
-  final String fromEmail;
-  final String preview;
-  final DateTime date;
-  final bool isRead;
-  final bool isStarred;
+part 'email_model.freezed.dart';
+part 'email_model.g.dart';
+
+@freezed
+sealed class EmailAddressModel with _$EmailAddressModel {
+  const factory EmailAddressModel({
+    required String name,
+    required String email,
+  }) = _EmailAddressModel;
+
+  factory EmailAddressModel.fromJson(Map<String, dynamic> json) =>
+      _$EmailAddressModelFromJson(json);
+}
+
+@freezed
+sealed class EmailModel with _$EmailModel {
+  const factory EmailModel({
+    required int id,
+    required int accountId,
+    required String messageId,
+    required String mailbox,
+    required String subject,
+    required String fromName,
+    required String fromEmail,
+    required List<EmailAddressModel> to,
+    required List<EmailAddressModel> cc,
+    required DateTime date,
+    required String preview,
+    required String bodyPlain,
+    required String bodyHtml,
+    required bool isRead,
+    required bool isStarred,
+    required bool isDeleted,
+    required List<String> labels,
+    required String threadId,
+    required bool hasAttachments,
+  }) = _EmailModel;
+
+  factory EmailModel.fromJson(Map<String, dynamic> json) =>
+      _$EmailModelFromJson(json);
 }

@@ -16,13 +16,21 @@ class ImapService {
 
   Future<Result<MailClient>> connect(AccountModel account, String password) async {
     try {
-      final client = MailClient('ponymail');
-      await client.connectToServer(
-        account.imapHost,
-        account.imapPort,
-        isSecure: account.imapSsl,
+      final mailAccount = MailAccount.fromManualSettings(
+        name: account.displayName,
+        email: account.email,
+        incomingHost: account.imapHost,
+        outgoingHost: account.smtpHost,
+        password: password,
+        incomingPort: account.imapPort,
+        outgoingPort: account.smtpPort,
+        incomingSocketType:
+            account.imapSsl ? SocketType.ssl : SocketType.starttls,
+        outgoingSocketType:
+            account.smtpSsl ? SocketType.ssl : SocketType.starttls,
       );
-      await client.login(account.email, password);
+      final client = MailClient(mailAccount);
+      await client.connect();
       return Result.ok(client);
     } catch (e) {
       return Result.err('IMAP 连接失败: $e');
