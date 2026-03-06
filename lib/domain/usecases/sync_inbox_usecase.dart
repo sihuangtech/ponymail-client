@@ -28,16 +28,19 @@ class SyncInboxUseCase {
         await _database.into(_database.emails).insert(
               EmailsCompanion.insert(
                 accountId: account.id,
+                remoteUid: Value(m.uid),
                 messageId: m.decodeHeaderValue('message-id') ?? m.hashCode.toString(),
                 mailbox: 'INBOX',
                 subject: m.decodeSubject() ?? '(无主题)',
                 fromName: m.from?.isNotEmpty == true ? m.from!.first.personalName ?? '' : '',
                 fromEmail: m.from?.isNotEmpty == true ? m.from!.first.email : '',
                 toList: '[]',
+                bccList: const Value('[]'),
                 date: m.decodeDate() ?? DateTime.now(),
                 preview: Value(plainText.length > 120 ? plainText.substring(0, 120) : plainText),
                 bodyPlain: Value(plainText),
                 bodyHtml: Value(m.decodeTextHtmlPart() ?? ''),
+                isDraft: const Value(false),
               ),
             );
       }

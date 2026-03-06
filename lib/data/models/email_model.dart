@@ -19,6 +19,7 @@ sealed class EmailModel with _$EmailModel {
   const factory EmailModel({
     required int id,
     required int accountId,
+    int? remoteUid,
     required String messageId,
     required String mailbox,
     required String subject,
@@ -26,6 +27,7 @@ sealed class EmailModel with _$EmailModel {
     required String fromEmail,
     required List<EmailAddressModel> to,
     required List<EmailAddressModel> cc,
+    required List<EmailAddressModel> bcc,
     required DateTime date,
     required String preview,
     required String bodyPlain,
@@ -33,6 +35,7 @@ sealed class EmailModel with _$EmailModel {
     required bool isRead,
     required bool isStarred,
     required bool isDeleted,
+    required bool isDraft,
     required List<String> labels,
     required String threadId,
     required bool hasAttachments,

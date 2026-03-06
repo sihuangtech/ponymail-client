@@ -1,16 +1,20 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/extensions/build_context_x.dart';
+import '../../../data/models/compose_request.dart';
+import '../../providers/account_provider.dart';
+import '../../providers/compose_provider.dart';
 
-class ComposeScreen extends StatefulWidget {
+class ComposeScreen extends ConsumerStatefulWidget {
   const ComposeScreen({super.key});
 
   @override
-  State<ComposeScreen> createState() => _ComposeScreenState();
+  ConsumerState<ComposeScreen> createState() => _ComposeScreenState();
 }
 
-class _ComposeScreenState extends State<ComposeScreen> {
+class _ComposeScreenState extends ConsumerState<ComposeScreen> {
   final _toController = TextEditingController();
   final _ccController = TextEditingController();
   final _bccController = TextEditingController();
@@ -26,10 +30,61 @@ class _ComposeScreenState extends State<ComposeScreen> {
     }
     setState(() {
       _attachments.addAll(
-        result.files.where((file) => file.path != null).map((file) => file.name),
+        result.files
+            .where((file) => file.path != null)
+            .map((file) => file.path!)
+            .toList(),
       );
       _draftSaved = true;
     });
+  }
+
+  Future<void> _pickSchedule() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      initialDate: now,
+    );
+    if (date == null || !mounted) {
+      return;
+    }
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(now),
+    );
+    if (time == null) {
+      return;
+    }
+    ref.read(scheduledAtProvider.notifier).state = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+  }
+
+  void _wrapSelection(String start, String end) {
+    final selection = _bodyController.selection;
+    final text = _bodyController.text;
+    if (!selection.isValid) {
+      _bodyController.text = '$text$start$end';
+      return;
+    }
+    final selected = selection.textInside(text);
+    final replaced = selection.textBefore(text) +
+        start +
+        selected +
+        end +
+        selection.textAfter(text);
+    _bodyController.value = TextEditingValue(
+      text: replaced,
+      selection: TextSelection.collapsed(
+        offset: selection.start + start.length + selected.length + end.length,
+      ),
+    );
   }
 
   @override
@@ -54,6 +109,11 @@ class _ComposeScreenState extends State<ComposeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final composeState = ref.watch(composeProvider);
+    final currentAccount = ref.watch(currentAccountProvider);
+    final scheduledAt = ref.watch(scheduledAtProvider);
+    final notifier = ref.read(composeProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.writeEmail)),
       body: ListView(
@@ -79,15 +139,26 @@ class _ComposeScreenState extends State<ComposeScreen> {
             decoration: InputDecoration(labelText: context.l10n.subject),
           ),
           const SizedBox(height: 12),
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'bold', icon: Icon(Icons.format_bold)),
-              ButtonSegment(value: 'italic', icon: Icon(Icons.format_italic)),
-              ButtonSegment(value: 'list', icon: Icon(Icons.format_list_bulleted)),
-              ButtonSegment(value: 'link', icon: Icon(Icons.link)),
+          Wrap(
+            spacing: 8,
+            children: [
+              IconButton(
+                onPressed: () => _wrapSelection('<b>', '</b>'),
+                icon: const Icon(Icons.format_bold),
+              ),
+              IconButton(
+                onPressed: () => _wrapSelection('<i>', '</i>'),
+                icon: const Icon(Icons.format_italic),
+              ),
+              IconButton(
+                onPressed: () => _wrapSelection('<ul><li>', '</li></ul>'),
+                icon: const Icon(Icons.format_list_bulleted),
+              ),
+              IconButton(
+                onPressed: () => _wrapSelection('<a href="">', '</a>'),
+                icon: const Icon(Icons.link),
+              ),
             ],
-            selected: const <String>{},
-            onSelectionChanged: (_) {},
           ),
           const SizedBox(height: 12),
           TextField(
@@ -102,7 +173,7 @@ class _ComposeScreenState extends State<ComposeScreen> {
               spacing: 8,
               runSpacing: 8,
               children: _attachments
-                  .map((attachment) => Chip(label: Text(attachment)))
+                  .map((attachment) => Chip(label: Text(attachment.split('/').last)))
                   .toList(),
             ),
           if (_draftSaved) ...[
@@ -111,6 +182,10 @@ class _ComposeScreenState extends State<ComposeScreen> {
               context.l10n.draftSaved,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+          ],
+          if (scheduledAt != null) ...[
+            const SizedBox(height: 12),
+            Text('${context.l10n.scheduleSend}: $scheduledAt'),
           ],
           const SizedBox(height: 16),
           Row(
@@ -122,14 +197,38 @@ class _ComposeScreenState extends State<ComposeScreen> {
               ),
               const SizedBox(width: 8),
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: _pickSchedule,
                 icon: const Icon(Icons.schedule_send_outlined),
                 label: Text(context.l10n.scheduleSend),
               ),
               const Spacer(),
               FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.l10n.send),
+                onPressed: composeState.isLoading || currentAccount == null
+                    ? null
+                    : () async {
+                        await notifier.send(
+                          ComposeRequest(
+                            accountId: currentAccount.id,
+                            to: notifier.parseAddresses(_toController.text),
+                            cc: notifier.parseAddresses(_ccController.text),
+                            bcc: notifier.parseAddresses(_bccController.text),
+                            subject: _subjectController.text.trim(),
+                            bodyPlain: _bodyController.text,
+                            bodyHtml: _bodyController.text,
+                            attachmentPaths: _attachments,
+                            scheduledAt: scheduledAt,
+                          ),
+                        );
+                        if (mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                child: composeState.isLoading
+                    ? const SizedBox.square(
+                        dimension: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(context.l10n.send),
               ),
             ],
           ),

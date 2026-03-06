@@ -46,7 +46,15 @@ class AccountRepositoryImpl implements AccountRepository {
   @override
   Future<Result<void>> deleteAccount(int accountId) async {
     try {
-      await (_database.delete(_database.accounts)..where((tbl) => tbl.id.equals(accountId))).go();
+      final existing = await (_database.select(_database.accounts)
+            ..where((tbl) => tbl.id.equals(accountId)))
+          .getSingleOrNull();
+      if (existing != null) {
+        await _secureStorage.delete(key: existing.passwordKey);
+      }
+      await (_database.delete(_database.accounts)
+            ..where((tbl) => tbl.id.equals(accountId)))
+          .go();
       return Result.ok(null);
     } catch (e) {
       return Result.err('删除账户失败: $e');
@@ -77,6 +85,50 @@ class AccountRepositoryImpl implements AccountRepository {
       return Result.ok(null);
     } catch (e) {
       return Result.err('初始化演示账户失败: $e');
+    }
+  }
+
+  @override
+  Future<Result<String>> getPassword(AccountModel account) async {
+    try {
+      final password = await _secureStorage.read(key: account.passwordKey);
+      if (password == null || password.isEmpty) {
+        return Result.err('账户密码不存在');
+      }
+      return Result.ok(password);
+    } catch (e) {
+      return Result.err('读取账户密码失败: $e');
+    }
+  }
+
+  @override
+  Future<Result<AccountModel>> updateAccount(
+    AccountModel account,
+    String password,
+  ) async {
+    try {
+      await _secureStorage.write(key: account.passwordKey, value: password);
+      await (_database.update(_database.accounts)
+            ..where((tbl) => tbl.id.equals(account.id)))
+          .write(
+        AccountsCompanion(
+          email: Value(account.email),
+          displayName: Value(account.displayName),
+          imapHost: Value(account.imapHost),
+          imapPort: Value(account.imapPort),
+          imapSsl: Value(account.imapSsl),
+          smtpHost: Value(account.smtpHost),
+          smtpPort: Value(account.smtpPort),
+          smtpSsl: Value(account.smtpSsl),
+          passwordKey: Value(account.passwordKey),
+          color: Value(account.color),
+          signature: Value(account.signature),
+          createdAt: Value(account.createdAt),
+        ),
+      );
+      return Result.ok(account);
+    } catch (e) {
+      return Result.err('更新账户失败: $e');
     }
   }
 }

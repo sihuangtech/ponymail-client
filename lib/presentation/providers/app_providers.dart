@@ -8,6 +8,9 @@ import '../../data/repositories/account_repository.dart';
 import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/mail_repository.dart';
 import '../../data/repositories/mail_repository_impl.dart';
+import '../../data/services/mail_message_mapper.dart';
+import '../../data/services/mail_runtime_service.dart';
+import '../../data/services/notification_service.dart';
 import '../../domain/usecases/sync_inbox_usecase.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) => AppDatabase());
@@ -22,6 +25,23 @@ final demoMailSourceProvider = Provider<DemoMailLocalSource>(
 
 final imapServiceProvider = Provider<ImapService>((ref) => ImapService());
 
+final notificationServiceProvider = Provider<NotificationService>((ref) {
+  final service = NotificationService();
+  service.initialize();
+  return service;
+});
+
+final mailMessageMapperProvider = Provider<MailMessageMapper>(
+  (ref) => MailMessageMapper(),
+);
+
+final mailRuntimeServiceProvider = Provider<MailRuntimeService>((ref) {
+  return MailRuntimeService(
+    ref.watch(mailMessageMapperProvider),
+    ref.watch(notificationServiceProvider),
+  );
+});
+
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {
   return AccountRepositoryImpl(
     ref.watch(appDatabaseProvider),
@@ -34,6 +54,8 @@ final mailRepositoryProvider = Provider<MailRepository>((ref) {
   return MailRepositoryImpl(
     ref.watch(appDatabaseProvider),
     ref.watch(demoMailSourceProvider),
+    ref.watch(accountRepositoryProvider),
+    ref.watch(mailRuntimeServiceProvider),
   );
 });
 
