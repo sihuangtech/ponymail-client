@@ -86,7 +86,15 @@ final mailboxProvider = FutureProvider<List<MailboxModel>>((ref) async {
   return result.data ?? const <MailboxModel>[];
 });
 
-final searchQueryProvider = StateProvider<String>((ref) => '');
+class SearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void update(String value) => state = value;
+}
+
+final searchQueryProvider =
+    NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
 
 final searchResultProvider = FutureProvider<SearchResultModel>((ref) async {
   final repository = ref.watch(mailRepositoryProvider);

@@ -57,13 +57,13 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
     if (time == null) {
       return;
     }
-    ref.read(scheduledAtProvider.notifier).state = DateTime(
+    ref.read(scheduledAtProvider.notifier).update(DateTime(
       date.year,
       date.month,
       date.day,
       time.hour,
       time.minute,
-    );
+    ));
   }
 
   void _wrapSelection(String start, String end) {
@@ -219,9 +219,8 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
                             scheduledAt: scheduledAt,
                           ),
                         );
-                        if (mounted) {
-                          Navigator.of(context).pop();
-                        }
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop();
                       },
                 child: composeState.isLoading
                     ? const SizedBox.square(

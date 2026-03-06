@@ -4,7 +4,15 @@ import '../../data/models/compose_request.dart';
 import '../../data/models/email_model.dart';
 import 'app_providers.dart';
 
-final scheduledAtProvider = StateProvider<DateTime?>((ref) => null);
+class ScheduledAtNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => null;
+
+  void update(DateTime? value) => state = value;
+}
+
+final scheduledAtProvider =
+    NotifierProvider<ScheduledAtNotifier, DateTime?>(ScheduledAtNotifier.new);
 
 class ComposeNotifier extends AsyncNotifier<void> {
   @override

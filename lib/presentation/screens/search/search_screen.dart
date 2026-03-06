@@ -20,7 +20,7 @@ class SearchScreen extends ConsumerWidget {
               hintText: context.l10n.searchHint,
               leading: const Icon(Icons.search_rounded),
               onChanged: (value) =>
-                  ref.read(searchQueryProvider.notifier).state = value,
+                  ref.read(searchQueryProvider.notifier).update(value),
             ),
             const SizedBox(height: 16),
             Expanded(

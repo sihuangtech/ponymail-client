@@ -123,7 +123,7 @@ class MailRuntimeService {
         final email = _mapper.toEmailModel(
           event.message,
           accountId: account.id,
-          mailboxPath: event.message.envelope?.mailboxName ?? 'INBOX',
+          mailboxPath: 'INBOX',
           fallbackId: account.id * 300000 + (event.message.uid ?? 1),
         );
         await _notificationService.showNewMail(
@@ -174,7 +174,7 @@ class MailRuntimeService {
     final client = await connect(account, password);
     await client.selectMailboxByPath(email.mailbox);
     final boxes = await client.listMailboxes();
-    final mailbox = boxes.firstWhere((item) => (item.path ?? item.name) == target.path);
+    final mailbox = boxes.firstWhere((item) => item.path == target.path);
     await client.moveMessages(
       MessageSequence.fromIds([email.remoteUid ?? 0], isUid: true),
       mailbox,

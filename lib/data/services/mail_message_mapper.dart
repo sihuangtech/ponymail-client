@@ -30,9 +30,9 @@ class MailMessageMapper {
       preview: _preview(plain, html),
       bodyPlain: plain,
       bodyHtml: html,
-      isRead: message.isSeen ?? false,
-      isStarred: message.isFlagged ?? false,
-      isDeleted: message.isDeleted ?? false,
+      isRead: message.isSeen,
+      isStarred: message.isFlagged,
+      isDeleted: message.isDeleted,
       isDraft: false,
       labels: _labelsFor(message),
       threadId: message.decodeHeaderValue('references') ?? '',
@@ -63,9 +63,9 @@ class MailMessageMapper {
       id: fallbackId,
       accountId: accountId,
       name: mailbox.name,
-      path: mailbox.path ?? mailbox.name,
+      path: mailbox.path,
       type: _mailboxType(mailbox),
-      unreadCount: mailbox.messagesUnseen ?? 0,
+      unreadCount: mailbox.messagesUnseen,
     );
   }
 
