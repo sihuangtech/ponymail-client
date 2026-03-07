@@ -14,30 +14,34 @@ class SelectedMailboxNotifier extends Notifier<String?> {
   void select(String? path) => state = path;
 }
 
-class SelectedEmailIdsNotifier extends Notifier<Set<int>> {
+class SelectedEmailsNotifier extends Notifier<Map<int, EmailModel>> {
   @override
-  Set<int> build() => <int>{};
+  Map<int, EmailModel> build() => <int, EmailModel>{};
 
-  void toggle(int emailId) {
+  void toggle(EmailModel email) {
     final next = {...state};
-    if (next.contains(emailId)) {
-      next.remove(emailId);
+    if (next.containsKey(email.id)) {
+      next.remove(email.id);
     } else {
-      next.add(emailId);
+      next[email.id] = email;
     }
     state = next;
   }
 
-  void clear() => state = <int>{};
+  void clear() => state = <int, EmailModel>{};
 
-  void replaceAll(Iterable<int> ids) => state = {...ids};
+  void replaceAll(Iterable<EmailModel> emails) {
+    state = {for (final email in emails) email.id: email};
+  }
 
-  void retainVisible(Iterable<int> visibleIds) {
-    final allowed = visibleIds.toSet();
-    final next = state.where(allowed.contains).toSet();
-    if (next.length != state.length) {
-      state = next;
+  void upsertVisible(Iterable<EmailModel> emails) {
+    final next = {...state};
+    for (final email in emails) {
+      if (next.containsKey(email.id)) {
+        next[email.id] = email;
+      }
     }
+    state = next;
   }
 }
 
@@ -46,9 +50,9 @@ final selectedMailboxProvider =
       SelectedMailboxNotifier.new,
     );
 
-final selectedEmailIdsProvider =
-    NotifierProvider<SelectedEmailIdsNotifier, Set<int>>(
-      SelectedEmailIdsNotifier.new,
+final selectedEmailsProvider =
+    NotifierProvider<SelectedEmailsNotifier, Map<int, EmailModel>>(
+      SelectedEmailsNotifier.new,
     );
 
 class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
@@ -100,6 +104,12 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
     await refreshInbox();
   }
 
+  Future<void> markStarred(EmailModel email, bool starred) async {
+    final repository = ref.read(mailRepositoryProvider);
+    await repository.markStarred(email, starred);
+    await refreshInbox();
+  }
+
   Future<String?> markReadBatch(List<EmailModel> emails, bool read) async {
     try {
       final repository = ref.read(mailRepositoryProvider);
@@ -107,7 +117,6 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
         await repository.markRead(email, read);
       }
       await refreshInbox();
-      ref.read(selectedEmailIdsProvider.notifier).clear();
       return null;
     } catch (e) {
       return '批量更新已读状态失败: $e';
@@ -121,7 +130,7 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
         await repository.deleteEmail(email);
       }
       await refreshInbox();
-      ref.read(selectedEmailIdsProvider.notifier).clear();
+      ref.read(selectedEmailsProvider.notifier).clear();
       return null;
     } catch (e) {
       return '批量删除失败: $e';
@@ -138,10 +147,26 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
         await repository.moveEmail(email, target);
       }
       await refreshInbox();
-      ref.read(selectedEmailIdsProvider.notifier).clear();
+      ref.read(selectedEmailsProvider.notifier).clear();
       return null;
     } catch (e) {
       return '批量移动失败: $e';
+    }
+  }
+
+  Future<String?> markStarredBatch(
+    List<EmailModel> emails,
+    bool starred,
+  ) async {
+    try {
+      final repository = ref.read(mailRepositoryProvider);
+      for (final email in emails) {
+        await repository.markStarred(email, starred);
+      }
+      await refreshInbox();
+      return null;
+    } catch (e) {
+      return '批量更新星标失败: $e';
     }
   }
 }

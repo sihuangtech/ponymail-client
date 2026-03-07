@@ -566,6 +566,18 @@ abstract class AppLocalizations {
   /// **'Delete the selected emails?'**
   String get batchDeleteConfirm;
 
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAll;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear selection'**
+  String get clearSelection;
+
   /// No description provided for @markUnread.
   ///
   /// In en, this message translates to:

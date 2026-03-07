@@ -15,14 +15,12 @@ class HomeInboxList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIds = ref.watch(selectedEmailIdsProvider);
-    final selectionMode = selectedIds.isNotEmpty;
+    final selectedEmails = ref.watch(selectedEmailsProvider);
+    final selectionMode = selectedEmails.isNotEmpty;
     return inboxAsync.when(
       data: (mails) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref
-              .read(selectedEmailIdsProvider.notifier)
-              .retainVisible(mails.map((mail) => mail.id));
+          ref.read(selectedEmailsProvider.notifier).upsertVisible(mails);
         });
         if (mails.isEmpty) {
           return Center(child: Text(context.l10n.emptyInbox));
@@ -36,16 +34,13 @@ class HomeInboxList extends ConsumerWidget {
               final email = mails[index];
               final tile = MailListTile(
                 email: email,
-                isSelected: selectedIds.contains(email.id),
+                isSelected: selectedEmails.containsKey(email.id),
                 showSelection: selectionMode,
-                onLongPress: () => ref
-                    .read(selectedEmailIdsProvider.notifier)
-                    .toggle(email.id),
+                onLongPress: () =>
+                    ref.read(selectedEmailsProvider.notifier).toggle(email),
                 onTap: () {
                   if (selectionMode) {
-                    ref
-                        .read(selectedEmailIdsProvider.notifier)
-                        .toggle(email.id);
+                    ref.read(selectedEmailsProvider.notifier).toggle(email);
                     return;
                   }
                   context.push('/email/${email.id}');

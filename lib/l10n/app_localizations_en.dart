@@ -258,6 +258,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get batchDeleteConfirm => 'Delete the selected emails?';
 
   @override
+  String get selectAll => 'Select all';
+
+  @override
+  String get clearSelection => 'Clear selection';
+
+  @override
   String get markUnread => 'Mark unread';
 
   @override

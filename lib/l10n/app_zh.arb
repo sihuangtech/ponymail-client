@@ -94,6 +94,8 @@
   },
   "batchMove": "移动",
   "batchDeleteConfirm": "删除已选择的邮件？",
+  "selectAll": "全选",
+  "clearSelection": "清空选择",
   "markUnread": "标为未读",
   "markRead": "标为已读",
   "archive": "归档",

@@ -177,6 +177,17 @@ class MailRepositoryImpl implements MailRepository {
   }
 
   @override
+  Future<Result<void>> markStarred(EmailModel email, bool starred) async {
+    return _withAccountForEmail(email, (account, password) async {
+      await _runtimeService.markStarred(account, password, email, starred);
+      await (_database.update(_database.emails)
+            ..where((tbl) => tbl.id.equals(email.id)))
+          .write(EmailsCompanion(isStarred: Value(starred)));
+      return Result.ok(null);
+    });
+  }
+
+  @override
   Future<Result<void>> deleteEmail(EmailModel email) async {
     return _withAccountForEmail(email, (account, password) async {
       await _runtimeService.deleteMessage(account, password, email);

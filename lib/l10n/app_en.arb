@@ -94,6 +94,8 @@
   },
   "batchMove": "Move",
   "batchDeleteConfirm": "Delete the selected emails?",
+  "selectAll": "Select all",
+  "clearSelection": "Clear selection",
   "markUnread": "Mark unread",
   "markRead": "Mark read",
   "archive": "Archive",

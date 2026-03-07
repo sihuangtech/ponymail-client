@@ -249,6 +249,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get batchDeleteConfirm => '删除已选择的邮件？';
 
   @override
+  String get selectAll => '全选';
+
+  @override
+  String get clearSelection => '清空选择';
+
+  @override
   String get markUnread => '标为未读';
 
   @override

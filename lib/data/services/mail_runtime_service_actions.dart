@@ -19,6 +19,24 @@ extension MailRuntimeServiceActions on MailRuntimeService {
     }
   }
 
+  Future<void> markStarred(
+    AccountModel account,
+    String password,
+    EmailModel email,
+    bool starred,
+  ) async {
+    final client = await connect(account, password);
+    await client.selectMailboxByPath(email.mailbox);
+    final sequence = MessageSequence.fromIds([
+      email.remoteUid ?? 0,
+    ], isUid: true);
+    if (starred) {
+      await client.markFlagged(sequence);
+    } else {
+      await client.markUnflagged(sequence);
+    }
+  }
+
   Future<void> deleteMessage(
     AccountModel account,
     String password,

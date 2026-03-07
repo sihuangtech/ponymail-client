@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,115 +12,234 @@ import 'widgets/home_account_switcher.dart';
 import 'widgets/home_inbox_list.dart';
 import 'widgets/home_sidebar.dart';
 
+class ClearSelectionIntent extends Intent {
+  const ClearSelectionIntent();
+}
+
+class SelectAllIntent extends Intent {
+  const SelectAllIntent();
+}
+
+class BatchReadIntent extends Intent {
+  const BatchReadIntent(this.read);
+
+  final bool read;
+}
+
+class BatchStarIntent extends Intent {
+  const BatchStarIntent(this.starred);
+
+  final bool starred;
+}
+
+class BatchArchiveIntent extends Intent {
+  const BatchArchiveIntent();
+}
+
+class BatchDeleteIntent extends Intent {
+  const BatchDeleteIntent();
+}
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isMacOS = Theme.of(context).platform == TargetPlatform.macOS;
     final accountsAsync = ref.watch(accountProvider);
     final inboxAsync = ref.watch(inboxProvider);
     final mailboxesAsync = ref.watch(mailboxProvider);
     final currentAccount = ref.watch(currentAccountProvider);
-    final selectedIds = ref.watch(selectedEmailIdsProvider);
-    final selectionMode = selectedIds.isNotEmpty;
+    final selectedMap = ref.watch(selectedEmailsProvider);
+    final selectionMode = selectedMap.isNotEmpty;
     final visibleEmails = inboxAsync.value ?? const <EmailModel>[];
-    final selectedEmails = visibleEmails
-        .where((email) => selectedIds.contains(email.id))
-        .toList();
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: selectionMode
-            ? IconButton(
-                onPressed: () =>
-                    ref.read(selectedEmailIdsProvider.notifier).clear(),
-                icon: const Icon(Icons.close),
-              )
-            : null,
-        title: Text(
-          selectionMode
-              ? context.l10n.selectedCount(selectedIds.length)
-              : currentAccount == null
-              ? context.l10n.allInboxes
-              : currentAccount.displayName,
-        ),
-        actions: [
-          if (selectionMode) ...[
-            IconButton(
-              onPressed: selectedEmails.length == visibleEmails.length
-                  ? () => ref.read(selectedEmailIdsProvider.notifier).clear()
-                  : () => ref
-                        .read(selectedEmailIdsProvider.notifier)
-                        .replaceAll(visibleEmails.map((email) => email.id)),
-              icon: Icon(
-                selectedEmails.length == visibleEmails.length
-                    ? Icons.remove_done_outlined
-                    : Icons.select_all,
-              ),
-            ),
-          ] else ...[
-            IconButton(
-              onPressed: () => context.push('/search'),
-              icon: const Icon(Icons.search_rounded),
-            ),
-            IconButton(
-              onPressed: () => context.push('/compose'),
-              icon: const Icon(Icons.edit_outlined),
-            ),
-            IconButton(
-              onPressed: () => context.push('/settings'),
-              icon: const Icon(Icons.settings_outlined),
-            ),
-          ],
-        ],
+    final selectedEmails = selectedMap.values.toList()
+      ..sort((left, right) => right.date.compareTo(left.date));
+    final allVisibleSelected =
+        visibleEmails.isNotEmpty &&
+        visibleEmails.every((email) => selectedMap.containsKey(email.id));
+    final archiveTarget = _findArchiveMailbox(mailboxesAsync.value ?? const []);
+    final shortcuts = <ShortcutActivator, Intent>{
+      const SingleActivator(LogicalKeyboardKey.escape):
+          const ClearSelectionIntent(),
+      SingleActivator(
+        LogicalKeyboardKey.keyA,
+        meta: isMacOS,
+        control: !isMacOS,
+      ): const SelectAllIntent(),
+      const SingleActivator(LogicalKeyboardKey.delete):
+          const BatchDeleteIntent(),
+      const SingleActivator(LogicalKeyboardKey.keyE):
+          const BatchArchiveIntent(),
+      const SingleActivator(LogicalKeyboardKey.keyS): const BatchStarIntent(
+        true,
       ),
-      bottomNavigationBar: selectionMode
-          ? _BatchToolbar(
-              selectedEmails: selectedEmails,
-              mailboxes: mailboxesAsync.value ?? const <MailboxModel>[],
-            )
-          : null,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth >= 980) {
-            return Row(
-              children: [
-                SizedBox(
-                  width: 280,
-                  child: HomeSidebar(
-                    accountsAsync: accountsAsync,
-                    mailboxesAsync: mailboxesAsync,
-                  ),
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(child: HomeInboxList(inboxAsync: inboxAsync)),
-                const VerticalDivider(width: 1),
-                Expanded(
-                  child: Center(child: Text(context.l10n.previewPlaceholder)),
-                ),
-              ],
-            );
-          }
-          return Column(
-            children: [
-              SizedBox(
-                height: 76,
-                child: HomeAccountSwitcher(accountsAsync: accountsAsync),
-              ),
-              Expanded(child: HomeInboxList(inboxAsync: inboxAsync)),
-            ],
-          );
+      const SingleActivator(LogicalKeyboardKey.keyU): const BatchReadIntent(
+        false,
+      ),
+      const SingleActivator(LogicalKeyboardKey.keyR): const BatchReadIntent(
+        true,
+      ),
+    };
+
+    return Shortcuts(
+      shortcuts: shortcuts,
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          ClearSelectionIntent: CallbackAction<ClearSelectionIntent>(
+            onInvoke: (_) => ref.read(selectedEmailsProvider.notifier).clear(),
+          ),
+          SelectAllIntent: CallbackAction<SelectAllIntent>(
+            onInvoke: (_) => ref
+                .read(selectedEmailsProvider.notifier)
+                .replaceAll(visibleEmails),
+          ),
+          BatchReadIntent: CallbackAction<BatchReadIntent>(
+            onInvoke: (intent) => ref
+                .read(inboxProvider.notifier)
+                .markReadBatch(selectedEmails, intent.read),
+          ),
+          BatchStarIntent: CallbackAction<BatchStarIntent>(
+            onInvoke: (intent) => ref
+                .read(inboxProvider.notifier)
+                .markStarredBatch(selectedEmails, intent.starred),
+          ),
+          BatchDeleteIntent: CallbackAction<BatchDeleteIntent>(
+            onInvoke: (_) =>
+                ref.read(inboxProvider.notifier).deleteBatch(selectedEmails),
+          ),
+          BatchArchiveIntent: CallbackAction<BatchArchiveIntent>(
+            onInvoke: (_) => archiveTarget == null
+                ? null
+                : ref
+                      .read(inboxProvider.notifier)
+                      .moveBatch(selectedEmails, archiveTarget),
+          ),
         },
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
+            appBar: AppBar(
+              leading: selectionMode
+                  ? IconButton(
+                      onPressed: () =>
+                          ref.read(selectedEmailsProvider.notifier).clear(),
+                      icon: const Icon(Icons.close),
+                    )
+                  : null,
+              title: Text(
+                selectionMode
+                    ? context.l10n.selectedCount(selectedMap.length)
+                    : currentAccount == null
+                    ? context.l10n.allInboxes
+                    : currentAccount.displayName,
+              ),
+              actions: [
+                if (selectionMode) ...[
+                  IconButton(
+                    onPressed: allVisibleSelected
+                        ? () =>
+                              ref.read(selectedEmailsProvider.notifier).clear()
+                        : () => ref
+                              .read(selectedEmailsProvider.notifier)
+                              .replaceAll(visibleEmails),
+                    icon: Icon(
+                      allVisibleSelected
+                          ? Icons.remove_done_outlined
+                          : Icons.select_all,
+                    ),
+                    tooltip: allVisibleSelected
+                        ? context.l10n.clearSelection
+                        : context.l10n.selectAll,
+                  ),
+                ] else ...[
+                  IconButton(
+                    onPressed: () => context.push('/search'),
+                    icon: const Icon(Icons.search_rounded),
+                  ),
+                  IconButton(
+                    onPressed: () => context.push('/compose'),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    onPressed: () => context.push('/settings'),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ],
+              ],
+            ),
+            bottomNavigationBar: selectionMode
+                ? _BatchToolbar(
+                    selectedEmails: selectedEmails,
+                    mailboxes: mailboxesAsync.value ?? const <MailboxModel>[],
+                    archiveTarget: archiveTarget,
+                  )
+                : null,
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth >= 980) {
+                  return Row(
+                    children: [
+                      SizedBox(
+                        width: 280,
+                        child: HomeSidebar(
+                          accountsAsync: accountsAsync,
+                          mailboxesAsync: mailboxesAsync,
+                        ),
+                      ),
+                      const VerticalDivider(width: 1),
+                      Expanded(child: HomeInboxList(inboxAsync: inboxAsync)),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: Center(
+                          child: Text(context.l10n.previewPlaceholder),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 76,
+                      child: HomeAccountSwitcher(accountsAsync: accountsAsync),
+                    ),
+                    Expanded(child: HomeInboxList(inboxAsync: inboxAsync)),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
       ),
     );
+  }
+
+  MailboxModel? _findArchiveMailbox(List<MailboxModel> mailboxes) {
+    for (final mailbox in mailboxes) {
+      if (mailbox.type == 'archive') {
+        return mailbox;
+      }
+    }
+    for (final mailbox in mailboxes) {
+      if (mailbox.path.toLowerCase().contains('archive')) {
+        return mailbox;
+      }
+    }
+    return null;
   }
 }
 
 class _BatchToolbar extends ConsumerWidget {
-  const _BatchToolbar({required this.selectedEmails, required this.mailboxes});
+  const _BatchToolbar({
+    required this.selectedEmails,
+    required this.mailboxes,
+    required this.archiveTarget,
+  });
 
   final List<EmailModel> selectedEmails;
   final List<MailboxModel> mailboxes;
+  final MailboxModel? archiveTarget;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -158,6 +278,47 @@ class _BatchToolbar extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.mark_email_unread_outlined),
                 tooltip: context.l10n.markUnread,
+              ),
+              IconButton(
+                onPressed: () async {
+                  final shouldStar = selectedEmails.any(
+                    (email) => !email.isStarred,
+                  );
+                  final error = await ref
+                      .read(inboxProvider.notifier)
+                      .markStarredBatch(selectedEmails, shouldStar);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  _showResult(
+                    context,
+                    error,
+                    shouldStar ? context.l10n.star : context.l10n.unstar,
+                  );
+                },
+                icon: Icon(
+                  selectedEmails.every((email) => email.isStarred)
+                      ? Icons.star_outline_rounded
+                      : Icons.star_rounded,
+                ),
+                tooltip: selectedEmails.every((email) => email.isStarred)
+                    ? context.l10n.unstar
+                    : context.l10n.star,
+              ),
+              IconButton(
+                onPressed: archiveTarget == null
+                    ? null
+                    : () async {
+                        final error = await ref
+                            .read(inboxProvider.notifier)
+                            .moveBatch(selectedEmails, archiveTarget!);
+                        if (!context.mounted) {
+                          return;
+                        }
+                        _showResult(context, error, context.l10n.archive);
+                      },
+                icon: const Icon(Icons.archive_outlined),
+                tooltip: context.l10n.archive,
               ),
               IconButton(
                 onPressed: () async {

@@ -21,6 +21,7 @@ abstract class MailRepository {
   });
   Future<Result<void>> startRealtimeSync(AccountModel account);
   Future<Result<void>> markRead(EmailModel email, bool read);
+  Future<Result<void>> markStarred(EmailModel email, bool starred);
   Future<Result<void>> deleteEmail(EmailModel email);
   Future<Result<void>> moveEmail(EmailModel email, MailboxModel target);
   Future<Result<List<AttachmentModel>>> getAttachments(EmailModel email);
