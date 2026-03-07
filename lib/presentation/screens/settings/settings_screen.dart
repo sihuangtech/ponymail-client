@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/extensions/build_context_x.dart';
 import '../../providers/account_provider.dart';
@@ -15,9 +16,20 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            context.l10n.manageAccounts,
-            style: Theme.of(context).textTheme.titleMedium,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.manageAccounts,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: () => context.push('/settings/accounts/new'),
+                icon: const Icon(Icons.add),
+                label: Text(context.l10n.addAccount),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           ...accounts.map(
@@ -29,6 +41,56 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 title: Text(account.displayName),
                 subtitle: Text(account.email),
+                onTap: () => context.push('/settings/accounts/${account.id}'),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'edit') {
+                      context.push('/settings/accounts/${account.id}');
+                      return;
+                    }
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: Text(context.l10n.deleteAccount),
+                        content: Text(context.l10n.deleteAccountConfirm),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(false),
+                            child: Text(context.l10n.cancel),
+                          ),
+                          FilledButton(
+                            onPressed: () =>
+                                Navigator.of(dialogContext).pop(true),
+                            child: Text(context.l10n.delete),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed != true || !context.mounted) {
+                      return;
+                    }
+                    final error = await ref
+                        .read(accountProvider.notifier)
+                        .deleteAccount(account.id);
+                    if (!context.mounted || error == null) {
+                      return;
+                    }
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(error)));
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Text(context.l10n.editAccount),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Text(context.l10n.deleteAccount),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

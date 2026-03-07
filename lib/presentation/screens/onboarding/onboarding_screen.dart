@@ -34,8 +34,8 @@ class OnboardingScreen extends StatelessWidget {
               Text(
                 context.l10n.onboardingTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -46,7 +46,7 @@ class OnboardingScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: () => context.go('/home'),
+                  onPressed: () => context.go('/settings/accounts/new'),
                   child: Text(context.l10n.continueToInbox),
                 ),
               ),

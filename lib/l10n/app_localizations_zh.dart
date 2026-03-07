@@ -87,6 +87,63 @@ class AppLocalizationsZh extends AppLocalizations {
   String get manageAccounts => '账户管理';
 
   @override
+  String get addAccount => '新增账户';
+
+  @override
+  String get editAccount => '编辑账户';
+
+  @override
+  String get saveAccount => '保存账户';
+
+  @override
+  String get saving => '保存中...';
+
+  @override
+  String get accountName => '账户名称';
+
+  @override
+  String get emailAddress => '邮箱地址';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get autoDiscoverSettings => '自动发现配置';
+
+  @override
+  String get accountDiscoveryApplied => '已应用服务器配置';
+
+  @override
+  String get accountDiscoveryGuessApplied => '已应用推测配置';
+
+  @override
+  String get accountDiscoveryInvalidEmail => '请先输入有效邮箱地址';
+
+  @override
+  String get serverSettings => '服务器设置';
+
+  @override
+  String get useSslForImap => 'IMAP 使用 SSL';
+
+  @override
+  String get useSslForSmtp => 'SMTP 使用 SSL';
+
+  @override
+  String get requiredField => '此项不能为空';
+
+  @override
+  String get invalidPort => '请输入有效端口';
+
+  @override
+  String get deleteAccount => '删除账户';
+
+  @override
+  String get deleteAccountConfirm => '删除该账户及其已保存凭据？';
+
+  @override
+  String get cancel => '取消';
+
+  @override
   String get systemDefault => '跟随系统';
 
   @override

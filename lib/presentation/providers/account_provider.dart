@@ -11,11 +11,17 @@ class SelectedAccountNotifier extends Notifier<int?> {
 }
 
 final selectedAccountIdProvider =
-    NotifierProvider<SelectedAccountNotifier, int?>(SelectedAccountNotifier.new);
+    NotifierProvider<SelectedAccountNotifier, int?>(
+      SelectedAccountNotifier.new,
+    );
 
 class AccountNotifier extends AsyncNotifier<List<AccountModel>> {
   @override
   Future<List<AccountModel>> build() async {
+    return _loadAccounts();
+  }
+
+  Future<List<AccountModel>> _loadAccounts() async {
     final repository = ref.watch(accountRepositoryProvider);
     var result = await repository.getAccounts();
     if ((result.data ?? []).isEmpty) {
@@ -29,15 +35,68 @@ class AccountNotifier extends AsyncNotifier<List<AccountModel>> {
     return accounts;
   }
 
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_loadAccounts);
+  }
+
   Future<void> selectAccount(int? accountId) async {
     ref.read(selectedAccountIdProvider.notifier).select(accountId);
+  }
+
+  Future<String?> getPassword(AccountModel account) async {
+    final repository = ref.read(accountRepositoryProvider);
+    final result = await repository.getPassword(account);
+    return result.data;
+  }
+
+  Future<String?> addAccount(AccountModel account, String password) async {
+    final repository = ref.read(accountRepositoryProvider);
+    final result = await repository.addAccount(account, password);
+    if (!result.isSuccess) {
+      return result.failure?.message;
+    }
+    await refresh();
+    final added = result.data;
+    if (added != null) {
+      ref.read(selectedAccountIdProvider.notifier).select(added.id);
+    }
+    return null;
+  }
+
+  Future<String?> updateAccount(AccountModel account, String password) async {
+    final repository = ref.read(accountRepositoryProvider);
+    final result = await repository.updateAccount(account, password);
+    if (!result.isSuccess) {
+      return result.failure?.message;
+    }
+    await refresh();
+    ref.read(selectedAccountIdProvider.notifier).select(account.id);
+    return null;
+  }
+
+  Future<String?> deleteAccount(int accountId) async {
+    final repository = ref.read(accountRepositoryProvider);
+    final previousSelectedId = ref.read(selectedAccountIdProvider);
+    final result = await repository.deleteAccount(accountId);
+    if (!result.isSuccess) {
+      return result.failure?.message;
+    }
+    await refresh();
+    final accounts = state.value ?? const <AccountModel>[];
+    if (accounts.isEmpty) {
+      ref.read(selectedAccountIdProvider.notifier).select(null);
+    } else if (previousSelectedId == accountId) {
+      ref.read(selectedAccountIdProvider.notifier).select(accounts.first.id);
+    }
+    return null;
   }
 }
 
 final accountProvider =
     AsyncNotifierProvider<AccountNotifier, List<AccountModel>>(
-  AccountNotifier.new,
-);
+      AccountNotifier.new,
+    );
 
 final currentAccountProvider = Provider<AccountModel?>((ref) {
   final accounts = ref.watch(accountProvider).value ?? const <AccountModel>[];

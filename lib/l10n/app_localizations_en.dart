@@ -88,6 +88,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manageAccounts => 'Manage Accounts';
 
   @override
+  String get addAccount => 'Add account';
+
+  @override
+  String get editAccount => 'Edit account';
+
+  @override
+  String get saveAccount => 'Save account';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get accountName => 'Account name';
+
+  @override
+  String get emailAddress => 'Email address';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get autoDiscoverSettings => 'Auto-discover settings';
+
+  @override
+  String get accountDiscoveryApplied => 'Applied server settings';
+
+  @override
+  String get accountDiscoveryGuessApplied => 'Applied guessed server settings';
+
+  @override
+  String get accountDiscoveryInvalidEmail =>
+      'Enter a valid email address first';
+
+  @override
+  String get serverSettings => 'Server settings';
+
+  @override
+  String get useSslForImap => 'Use SSL for IMAP';
+
+  @override
+  String get useSslForSmtp => 'Use SSL for SMTP';
+
+  @override
+  String get requiredField => 'This field is required';
+
+  @override
+  String get invalidPort => 'Enter a valid port';
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountConfirm =>
+      'Delete this account and its stored credentials?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
   String get systemDefault => 'Follow system';
 
   @override

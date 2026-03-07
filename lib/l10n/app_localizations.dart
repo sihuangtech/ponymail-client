@@ -254,6 +254,120 @@ abstract class AppLocalizations {
   /// **'Manage Accounts'**
   String get manageAccounts;
 
+  /// No description provided for @addAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get addAccount;
+
+  /// No description provided for @editAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get editAccount;
+
+  /// No description provided for @saveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Save account'**
+  String get saveAccount;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @accountName.
+  ///
+  /// In en, this message translates to:
+  /// **'Account name'**
+  String get accountName;
+
+  /// No description provided for @emailAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get emailAddress;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @autoDiscoverSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-discover settings'**
+  String get autoDiscoverSettings;
+
+  /// No description provided for @accountDiscoveryApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied server settings'**
+  String get accountDiscoveryApplied;
+
+  /// No description provided for @accountDiscoveryGuessApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied guessed server settings'**
+  String get accountDiscoveryGuessApplied;
+
+  /// No description provided for @accountDiscoveryInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address first'**
+  String get accountDiscoveryInvalidEmail;
+
+  /// No description provided for @serverSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Server settings'**
+  String get serverSettings;
+
+  /// No description provided for @useSslForImap.
+  ///
+  /// In en, this message translates to:
+  /// **'Use SSL for IMAP'**
+  String get useSslForImap;
+
+  /// No description provided for @useSslForSmtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Use SSL for SMTP'**
+  String get useSslForSmtp;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get requiredField;
+
+  /// No description provided for @invalidPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid port'**
+  String get invalidPort;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this account and its stored credentials?'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
   /// No description provided for @systemDefault.
   ///
   /// In en, this message translates to:
