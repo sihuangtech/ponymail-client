@@ -23,11 +23,7 @@ class AccountNotifier extends AsyncNotifier<List<AccountModel>> {
 
   Future<List<AccountModel>> _loadAccounts() async {
     final repository = ref.watch(accountRepositoryProvider);
-    var result = await repository.getAccounts();
-    if ((result.data ?? []).isEmpty) {
-      await repository.seedDemoAccounts();
-      result = await repository.getAccounts();
-    }
+    final result = await repository.getAccounts();
     final accounts = result.data ?? const <AccountModel>[];
     if (accounts.isNotEmpty && ref.read(selectedAccountIdProvider) == null) {
       ref.read(selectedAccountIdProvider.notifier).select(accounts.first.id);

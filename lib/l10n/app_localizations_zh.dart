@@ -78,6 +78,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notifications => '通知';
 
   @override
+  String get notificationSettingsHint => '控制本地邮件提醒与权限请求。';
+
+  @override
+  String get notificationPermission => '通知权限';
+
+  @override
+  String get notificationPermissionHint => '向系统申请本设备上的通知权限。';
+
+  @override
+  String get requestPermission => '申请';
+
+  @override
+  String get permissionRequestSent => '已发起权限请求';
+
+  @override
+  String get backgroundSync => '后台同步';
+
+  @override
+  String get backgroundSyncHint => '保存后台同步策略偏好，供后续后台任务接入。';
+
+  @override
+  String get idlePush => 'IDLE / 推送同步';
+
+  @override
+  String get idlePushHint => '在运行时连接可用时保持实时同步。';
+
+  @override
+  String get restoreScheduledSends => '恢复定时发送';
+
+  @override
+  String get restoreScheduledSendsHint => 'App 重启后重新加载已排队的定时邮件。';
+
+  @override
   String get signature => '签名';
 
   @override
@@ -151,6 +184,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get clearCache => '清理缓存';
+
+  @override
+  String get scheduledQueue => '定时队列';
+
+  @override
+  String get scheduledQueueHint => '已计划发送的邮件会显示在这里。';
+
+  @override
+  String get noScheduledEmails => '暂无定时邮件';
+
+  @override
+  String get cancelSchedule => '取消计划';
+
+  @override
+  String get noSubject => '（无主题）';
+
+  @override
+  String get lastError => '最近错误';
 
   @override
   String get signatureDefault => 'Sent from PonyMail';

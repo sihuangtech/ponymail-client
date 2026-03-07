@@ -79,6 +79,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications => 'Notifications';
 
   @override
+  String get notificationSettingsHint =>
+      'Control local mail alerts and permission requests.';
+
+  @override
+  String get notificationPermission => 'Notification permission';
+
+  @override
+  String get notificationPermissionHint =>
+      'Ask the system for alert permission on this device.';
+
+  @override
+  String get requestPermission => 'Request';
+
+  @override
+  String get permissionRequestSent => 'Permission request submitted';
+
+  @override
+  String get backgroundSync => 'Background sync';
+
+  @override
+  String get backgroundSyncHint =>
+      'Store your preferred background sync strategy for a future worker.';
+
+  @override
+  String get idlePush => 'IDLE / push sync';
+
+  @override
+  String get idlePushHint =>
+      'Keep real-time sync enabled when a runtime connection is available.';
+
+  @override
+  String get restoreScheduledSends => 'Restore scheduled sends';
+
+  @override
+  String get restoreScheduledSendsHint =>
+      'Reload queued scheduled emails after the app restarts.';
+
+  @override
   String get signature => 'Signature';
 
   @override
@@ -154,6 +192,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearCache => 'Clear cache';
+
+  @override
+  String get scheduledQueue => 'Scheduled queue';
+
+  @override
+  String get scheduledQueueHint =>
+      'Scheduled emails will appear here once queued.';
+
+  @override
+  String get noScheduledEmails => 'No scheduled emails';
+
+  @override
+  String get cancelSchedule => 'Cancel schedule';
+
+  @override
+  String get noSubject => '(No subject)';
+
+  @override
+  String get lastError => 'Last error';
 
   @override
   String get signatureDefault => 'Sent from PonyMail';

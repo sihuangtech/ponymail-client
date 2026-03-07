@@ -11,8 +11,9 @@ class ScheduledAtNotifier extends Notifier<DateTime?> {
   void update(DateTime? value) => state = value;
 }
 
-final scheduledAtProvider =
-    NotifierProvider<ScheduledAtNotifier, DateTime?>(ScheduledAtNotifier.new);
+final scheduledAtProvider = NotifierProvider<ScheduledAtNotifier, DateTime?>(
+  ScheduledAtNotifier.new,
+);
 
 class ComposeNotifier extends AsyncNotifier<void> {
   @override
@@ -21,15 +22,7 @@ class ComposeNotifier extends AsyncNotifier<void> {
   Future<void> send(ComposeRequest request) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await ref.read(scheduledSendServiceProvider).schedule(
-        request,
-        (payload) async {
-          final result = await ref.read(mailRepositoryProvider).sendEmail(payload);
-          if (!result.isSuccess) {
-            throw Exception(result.failure?.message ?? 'send failed');
-          }
-        },
-      );
+      await ref.read(scheduledSendServiceProvider).schedule(request);
     });
   }
 
@@ -43,5 +36,6 @@ class ComposeNotifier extends AsyncNotifier<void> {
   }
 }
 
-final composeProvider =
-    AsyncNotifierProvider<ComposeNotifier, void>(ComposeNotifier.new);
+final composeProvider = AsyncNotifierProvider<ComposeNotifier, void>(
+  ComposeNotifier.new,
+);

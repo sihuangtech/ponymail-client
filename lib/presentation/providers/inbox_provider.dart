@@ -16,8 +16,8 @@ class SelectedMailboxNotifier extends Notifier<String?> {
 
 final selectedMailboxProvider =
     NotifierProvider<SelectedMailboxNotifier, String?>(
-  SelectedMailboxNotifier.new,
-);
+      SelectedMailboxNotifier.new,
+    );
 
 class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
   @override
@@ -27,9 +27,7 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
     final accounts = ref.watch(accountProvider).value ?? const [];
     final selectedMailbox = ref.watch(selectedMailboxProvider);
     if (currentAccount == null) {
-      if (accounts.isEmpty) {
-        await repository.seedDemoMailboxData();
-      } else {
+      if (accounts.isNotEmpty) {
         for (final account in accounts) {
           await repository.syncInbox(
             account,
@@ -71,11 +69,14 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
   }
 }
 
-final inboxProvider =
-    AsyncNotifierProvider<InboxNotifier, List<EmailModel>>(InboxNotifier.new);
+final inboxProvider = AsyncNotifierProvider<InboxNotifier, List<EmailModel>>(
+  InboxNotifier.new,
+);
 
-final emailDetailProvider =
-    FutureProvider.family<EmailModel, int>((ref, emailId) async {
+final emailDetailProvider = FutureProvider.family<EmailModel, int>((
+  ref,
+  emailId,
+) async {
   final repository = ref.watch(mailRepositoryProvider);
   final result = await repository.getEmailDetail(emailId);
   if (!result.isSuccess || result.data == null) {
@@ -108,8 +109,9 @@ class SearchQueryNotifier extends Notifier<String> {
   void update(String value) => state = value;
 }
 
-final searchQueryProvider =
-    NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
+final searchQueryProvider = NotifierProvider<SearchQueryNotifier, String>(
+  SearchQueryNotifier.new,
+);
 
 final searchResultProvider = FutureProvider<SearchResultModel>((ref) async {
   final repository = ref.watch(mailRepositoryProvider);
@@ -128,8 +130,11 @@ final searchResultProvider = FutureProvider<SearchResultModel>((ref) async {
 });
 
 final attachmentsProvider =
-    FutureProvider.family<List<AttachmentModel>, EmailModel>((ref, email) async {
-  final repository = ref.watch(mailRepositoryProvider);
-  final result = await repository.getAttachments(email);
-  return result.data ?? const <AttachmentModel>[];
-});
+    FutureProvider.family<List<AttachmentModel>, EmailModel>((
+      ref,
+      email,
+    ) async {
+      final repository = ref.watch(mailRepositoryProvider);
+      final result = await repository.getAttachments(email);
+      return result.data ?? const <AttachmentModel>[];
+    });

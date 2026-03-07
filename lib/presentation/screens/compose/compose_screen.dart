@@ -6,6 +6,7 @@ import '../../../core/extensions/build_context_x.dart';
 import '../../../data/models/compose_request.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/compose_provider.dart';
+import '../../providers/scheduled_send_provider.dart';
 
 class ComposeScreen extends ConsumerStatefulWidget {
   const ComposeScreen({super.key});
@@ -57,13 +58,11 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
     if (time == null) {
       return;
     }
-    ref.read(scheduledAtProvider.notifier).update(DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    ));
+    ref
+        .read(scheduledAtProvider.notifier)
+        .update(
+          DateTime(date.year, date.month, date.day, time.hour, time.minute),
+        );
   }
 
   void _wrapSelection(String start, String end) {
@@ -74,7 +73,8 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
       return;
     }
     final selected = selection.textInside(text);
-    final replaced = selection.textBefore(text) +
+    final replaced =
+        selection.textBefore(text) +
         start +
         selected +
         end +
@@ -173,7 +173,10 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
               spacing: 8,
               runSpacing: 8,
               children: _attachments
-                  .map((attachment) => Chip(label: Text(attachment.split('/').last)))
+                  .map(
+                    (attachment) =>
+                        Chip(label: Text(attachment.split('/').last)),
+                  )
                   .toList(),
             ),
           if (_draftSaved) ...[
@@ -219,6 +222,9 @@ class _ComposeScreenState extends ConsumerState<ComposeScreen> {
                             scheduledAt: scheduledAt,
                           ),
                         );
+                        await ref
+                            .read(scheduledSendProvider.notifier)
+                            .refresh();
                         if (!context.mounted) return;
                         Navigator.of(context).pop();
                       },

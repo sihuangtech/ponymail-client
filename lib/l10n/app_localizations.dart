@@ -236,6 +236,72 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get notifications;
 
+  /// No description provided for @notificationSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Control local mail alerts and permission requests.'**
+  String get notificationSettingsHint;
+
+  /// No description provided for @notificationPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification permission'**
+  String get notificationPermission;
+
+  /// No description provided for @notificationPermissionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the system for alert permission on this device.'**
+  String get notificationPermissionHint;
+
+  /// No description provided for @requestPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get requestPermission;
+
+  /// No description provided for @permissionRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission request submitted'**
+  String get permissionRequestSent;
+
+  /// No description provided for @backgroundSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Background sync'**
+  String get backgroundSync;
+
+  /// No description provided for @backgroundSyncHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Store your preferred background sync strategy for a future worker.'**
+  String get backgroundSyncHint;
+
+  /// No description provided for @idlePush.
+  ///
+  /// In en, this message translates to:
+  /// **'IDLE / push sync'**
+  String get idlePush;
+
+  /// No description provided for @idlePushHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep real-time sync enabled when a runtime connection is available.'**
+  String get idlePushHint;
+
+  /// No description provided for @restoreScheduledSends.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore scheduled sends'**
+  String get restoreScheduledSends;
+
+  /// No description provided for @restoreScheduledSendsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload queued scheduled emails after the app restarts.'**
+  String get restoreScheduledSendsHint;
+
   /// No description provided for @signature.
   ///
   /// In en, this message translates to:
@@ -385,6 +451,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear cache'**
   String get clearCache;
+
+  /// No description provided for @scheduledQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled queue'**
+  String get scheduledQueue;
+
+  /// No description provided for @scheduledQueueHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled emails will appear here once queued.'**
+  String get scheduledQueueHint;
+
+  /// No description provided for @noScheduledEmails.
+  ///
+  /// In en, this message translates to:
+  /// **'No scheduled emails'**
+  String get noScheduledEmails;
+
+  /// No description provided for @cancelSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel schedule'**
+  String get cancelSchedule;
+
+  /// No description provided for @noSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'(No subject)'**
+  String get noSubject;
+
+  /// No description provided for @lastError.
+  ///
+  /// In en, this message translates to:
+  /// **'Last error'**
+  String get lastError;
 
   /// No description provided for @signatureDefault.
   ///
