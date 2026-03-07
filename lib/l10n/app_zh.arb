@@ -59,6 +59,16 @@
   "systemDefault": "跟随系统",
   "enabled": "已开启",
   "clearCache": "清理缓存",
+  "cacheLoading": "正在统计缓存占用...",
+  "cacheCleared": "缓存已清理",
+  "cacheSummary": "{count} 个文件 · {size}",
+  "@cacheSummary": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cachedLocally": "已缓存到本地",
   "scheduledQueue": "定时队列",
   "scheduledQueueHint": "已计划发送的邮件会显示在这里。",
   "noScheduledEmails": "暂无定时邮件",

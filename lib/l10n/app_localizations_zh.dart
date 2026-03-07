@@ -186,6 +186,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clearCache => '清理缓存';
 
   @override
+  String get cacheLoading => '正在统计缓存占用...';
+
+  @override
+  String get cacheCleared => '缓存已清理';
+
+  @override
+  String cacheSummary(Object count, Object size) {
+    return '$count 个文件 · $size';
+  }
+
+  @override
+  String get cachedLocally => '已缓存到本地';
+
+  @override
   String get scheduledQueue => '定时队列';
 
   @override

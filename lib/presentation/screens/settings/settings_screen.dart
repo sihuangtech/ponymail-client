@@ -7,6 +7,7 @@ import '../../../core/extensions/build_context_x.dart';
 import '../../../data/models/app_preferences.dart';
 import '../../providers/account_provider.dart';
 import '../../providers/app_providers.dart';
+import '../../providers/cache_provider.dart';
 import '../../providers/scheduled_send_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -17,6 +18,7 @@ class SettingsScreen extends ConsumerWidget {
     final accounts = ref.watch(accountProvider).value ?? const [];
     final preferencesAsync = ref.watch(appPreferencesProvider);
     final scheduledAsync = ref.watch(scheduledSendProvider);
+    final cacheAsync = ref.watch(attachmentCacheProvider);
     final preferences = preferencesAsync.value ?? const AppPreferences();
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.settings)),
@@ -231,10 +233,43 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             title: Text(context.l10n.cache),
-            subtitle: Text(context.l10n.clearCache),
+            subtitle: Text(
+              cacheAsync.when(
+                data: (summary) => context.l10n.cacheSummary(
+                  summary.fileCount,
+                  _formatBytes(summary.totalBytes),
+                ),
+                loading: () => context.l10n.cacheLoading,
+                error: (error, _) => context.l10n.loadingFailed('$error'),
+              ),
+            ),
+            trailing: TextButton(
+              onPressed: () async {
+                final error = await ref
+                    .read(attachmentCacheProvider.notifier)
+                    .clear();
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(error ?? context.l10n.cacheCleared)),
+                );
+              },
+              child: Text(context.l10n.clearCache),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) {
+      return '$bytes B';
+    }
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }

@@ -59,6 +59,16 @@
   "systemDefault": "Follow system",
   "enabled": "Enabled",
   "clearCache": "Clear cache",
+  "cacheLoading": "Calculating cache usage...",
+  "cacheCleared": "Cache cleared",
+  "cacheSummary": "{count} files · {size}",
+  "@cacheSummary": {
+    "placeholders": {
+      "count": {},
+      "size": {}
+    }
+  },
+  "cachedLocally": "Cached locally",
   "scheduledQueue": "Scheduled queue",
   "scheduledQueueHint": "Scheduled emails will appear here once queued.",
   "noScheduledEmails": "No scheduled emails",

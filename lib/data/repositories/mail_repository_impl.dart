@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
 
 import '../../core/utils/result.dart';
@@ -5,10 +7,12 @@ import '../database/database.dart';
 import '../datasources/local/demo_mail_local_source.dart';
 import '../models/account_model.dart';
 import '../models/attachment_model.dart';
+import '../models/cache_summary.dart';
 import '../models/compose_request.dart';
 import '../models/email_model.dart';
 import '../models/mailbox_model.dart';
 import '../models/search_result_model.dart';
+import '../services/attachment_cache_service.dart';
 import '../services/mail_runtime_service.dart';
 import 'account_repository.dart';
 import 'mail_repository.dart';
@@ -21,12 +25,14 @@ class MailRepositoryImpl implements MailRepository {
     this._demoSource,
     this._accountRepository,
     this._runtimeService,
+    this._attachmentCacheService,
   );
 
   final AppDatabase _database;
   final DemoMailLocalSource _demoSource;
   final AccountRepository _accountRepository;
   final MailRuntimeService _runtimeService;
+  final AttachmentCacheService _attachmentCacheService;
 
   @override
   Future<Result<List<EmailModel>>> getInboxEmails({int? accountId}) async {
@@ -82,8 +88,10 @@ class MailRepositoryImpl implements MailRepository {
       if (!passwordResult.isSuccess || passwordResult.data == null) {
         return Result.err(passwordResult.failure!.message);
       }
-      final mailboxes =
-          await _runtimeService.syncMailboxes(account, passwordResult.data!);
+      final mailboxes = await _runtimeService.syncMailboxes(
+        account,
+        passwordResult.data!,
+      );
       await _database.replaceMailboxes(mailboxes);
       final emails = await _runtimeService.syncMailbox(
         account,
@@ -114,7 +122,10 @@ class MailRepositoryImpl implements MailRepository {
       );
       if (account == null) {
         return Result.ok(
-          SearchResultModel(localResults: localResults, remoteResults: const []),
+          SearchResultModel(
+            localResults: localResults,
+            remoteResults: const [],
+          ),
         );
       }
       final passwordResult = await _accountRepository.getPassword(account);
@@ -126,9 +137,7 @@ class MailRepositoryImpl implements MailRepository {
         passwordResult.data!,
         queryText,
       );
-      return Result.ok(
-        remote.copyWith(localResults: localResults),
-      );
+      return Result.ok(remote.copyWith(localResults: localResults));
     } catch (e) {
       return Result.err('搜索邮件失败: $e');
     }
@@ -145,9 +154,9 @@ class MailRepositoryImpl implements MailRepository {
         account,
         passwordResult.data!,
         onNewMail: (email) async {
-          await _database.into(_database.emails).insertOnConflictUpdate(
-                _emailCompanionFromNotification(email),
-              );
+          await _database
+              .into(_database.emails)
+              .insertOnConflictUpdate(_emailCompanionFromNotification(email));
         },
       );
       return Result.ok(null);
@@ -192,8 +201,16 @@ class MailRepositoryImpl implements MailRepository {
   @override
   Future<Result<List<AttachmentModel>>> getAttachments(EmailModel email) async {
     return _withAccountForEmail(email, (account, password) async {
-      final attachments =
-          await _runtimeService.fetchAttachments(account, password, email);
+      final cached = await _database.getAttachmentsForEmail(email.id);
+      if (cached.isNotEmpty) {
+        return Result.ok(cached);
+      }
+      final attachments = await _runtimeService.fetchAttachments(
+        account,
+        password,
+        email,
+      );
+      await _database.replaceAttachmentsForEmail(email.id, attachments);
       return Result.ok(attachments);
     });
   }
@@ -204,21 +221,53 @@ class MailRepositoryImpl implements MailRepository {
     AttachmentModel attachment,
   ) async {
     return _withAccountForEmail(email, (account, password) async {
+      if (attachment.localPath.isNotEmpty) {
+        final file = File(attachment.localPath);
+        if (await file.exists()) {
+          return Result.ok(file.path);
+        }
+      }
       final path = await _runtimeService.downloadAttachment(
         account,
         password,
         email,
         attachment,
+        savePath: await _attachmentCacheService.buildPath(attachment.filename),
       );
+      if (path != null) {
+        await _database.upsertAttachment(attachment.copyWith(localPath: path));
+      }
       return Result.ok(path);
     });
+  }
+
+  @override
+  Future<Result<CacheSummary>> getAttachmentCacheSummary() async {
+    try {
+      return Result.ok(await _attachmentCacheService.summarize());
+    } catch (e) {
+      return Result.err('读取附件缓存失败: $e');
+    }
+  }
+
+  @override
+  Future<Result<void>> clearAttachmentCache() async {
+    try {
+      await _attachmentCacheService.clear();
+      await _database.clearAttachmentCacheMetadata();
+      return Result.ok(null);
+    } catch (e) {
+      return Result.err('清理附件缓存失败: $e');
+    }
   }
 
   @override
   Future<Result<void>> sendEmail(ComposeRequest request) async {
     try {
       final accounts = await _database.getAccountModels();
-      final account = accounts.firstWhere((item) => item.id == request.accountId);
+      final account = accounts.firstWhere(
+        (item) => item.id == request.accountId,
+      );
       final passwordResult = await _accountRepository.getPassword(account);
       if (!passwordResult.isSuccess || passwordResult.data == null) {
         return Result.err(passwordResult.failure!.message);

@@ -452,6 +452,30 @@ abstract class AppLocalizations {
   /// **'Clear cache'**
   String get clearCache;
 
+  /// No description provided for @cacheLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating cache usage...'**
+  String get cacheLoading;
+
+  /// No description provided for @cacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared'**
+  String get cacheCleared;
+
+  /// No description provided for @cacheSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files · {size}'**
+  String cacheSummary(Object count, Object size);
+
+  /// No description provided for @cachedLocally.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached locally'**
+  String get cachedLocally;
+
   /// No description provided for @scheduledQueue.
   ///
   /// In en, this message translates to:

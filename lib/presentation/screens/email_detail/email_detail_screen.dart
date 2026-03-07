@@ -34,8 +34,8 @@ class EmailDetailScreen extends ConsumerWidget {
               Text(
                 email.subject,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 16),
               Card(
@@ -74,9 +74,17 @@ class EmailDetailScreen extends ConsumerWidget {
                   children: attachments
                       .map(
                         (attachment) => ListTile(
-                          leading: const Icon(Icons.attach_file),
+                          leading: Icon(
+                            attachment.localPath.isNotEmpty
+                                ? Icons.folder_open
+                                : Icons.attach_file,
+                          ),
                           title: Text(attachment.filename),
-                          subtitle: Text(attachment.mimeType),
+                          subtitle: Text(
+                            attachment.localPath.isNotEmpty
+                                ? '${attachment.mimeType} · ${context.l10n.cachedLocally}'
+                                : attachment.mimeType,
+                          ),
                           onTap: () async {
                             final repository = ref.read(mailRepositoryProvider);
                             final result = await repository.downloadAttachment(
@@ -84,6 +92,7 @@ class EmailDetailScreen extends ConsumerWidget {
                               attachment,
                             );
                             if (result.data != null) {
+                              ref.invalidate(attachmentsProvider(email));
                               await OpenFilex.open(result.data!);
                             }
                           },
@@ -116,7 +125,8 @@ class EmailDetailScreen extends ConsumerWidget {
                     ),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => ref.read(inboxProvider.notifier).deleteEmail(email),
+                    onPressed: () =>
+                        ref.read(inboxProvider.notifier).deleteEmail(email),
                     icon: const Icon(Icons.delete_outline),
                     label: Text(context.l10n.delete),
                   ),
@@ -126,9 +136,8 @@ class EmailDetailScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Text(context.l10n.loadingFailed(error.toString())),
-        ),
+        error: (error, _) =>
+            Center(child: Text(context.l10n.loadingFailed(error.toString()))),
       ),
     );
   }

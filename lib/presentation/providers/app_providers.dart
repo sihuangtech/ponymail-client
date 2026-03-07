@@ -10,6 +10,7 @@ import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/mail_repository.dart';
 import '../../data/repositories/mail_repository_impl.dart';
 import '../../data/services/app_preferences_service.dart';
+import '../../data/services/attachment_cache_service.dart';
 import '../../data/services/mail_message_mapper.dart';
 import '../../data/services/mail_runtime_service.dart';
 import '../../data/services/account_auto_discovery_service.dart';
@@ -51,6 +52,10 @@ final mailRuntimeServiceProvider = Provider<MailRuntimeService>((ref) {
   );
 });
 
+final attachmentCacheServiceProvider = Provider<AttachmentCacheService>(
+  (ref) => AttachmentCacheService(),
+);
+
 final scheduledSendServiceProvider = Provider<ScheduledSendService>(
   (ref) => ScheduledSendService(ref.watch(scheduledSendStoreProvider)),
 );
@@ -78,6 +83,7 @@ final mailRepositoryProvider = Provider<MailRepository>((ref) {
     ref.watch(demoMailSourceProvider),
     ref.watch(accountRepositoryProvider),
     ref.watch(mailRuntimeServiceProvider),
+    ref.watch(attachmentCacheServiceProvider),
   );
 });
 

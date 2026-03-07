@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../models/account_model.dart';
+import '../models/attachment_model.dart';
 import '../models/email_model.dart';
 import '../models/mailbox_model.dart';
 
@@ -71,8 +72,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<EmailModel?> getEmailById(int id) async {
-    final row = await (select(emails)..where((tbl) => tbl.id.equals(id)))
-        .getSingleOrNull();
+    final row = await (select(
+      emails,
+    )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
     return row == null ? null : _mapEmail(row);
   }
 
@@ -83,6 +85,15 @@ class AppDatabase extends _$AppDatabase {
     }
     final rows = await query.get();
     return rows.map(_mapMailbox).toList();
+  }
+
+  Future<List<AttachmentModel>> getAttachmentsForEmail(int emailId) async {
+    final rows =
+        await (select(attachments)
+              ..where((tbl) => tbl.emailId.equals(emailId))
+              ..orderBy([(tbl) => OrderingTerm.asc(tbl.id)]))
+            .get();
+    return rows.map(_mapAttachment).toList();
   }
 }
 

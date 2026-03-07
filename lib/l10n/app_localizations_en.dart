@@ -194,6 +194,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearCache => 'Clear cache';
 
   @override
+  String get cacheLoading => 'Calculating cache usage...';
+
+  @override
+  String get cacheCleared => 'Cache cleared';
+
+  @override
+  String cacheSummary(Object count, Object size) {
+    return '$count files · $size';
+  }
+
+  @override
+  String get cachedLocally => 'Cached locally';
+
+  @override
   String get scheduledQueue => 'Scheduled queue';
 
   @override

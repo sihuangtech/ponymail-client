@@ -9,7 +9,9 @@ extension MailRuntimeServiceActions on MailRuntimeService {
   ) async {
     final client = await connect(account, password);
     await client.selectMailboxByPath(email.mailbox);
-    final sequence = MessageSequence.fromIds([email.remoteUid ?? 0], isUid: true);
+    final sequence = MessageSequence.fromIds([
+      email.remoteUid ?? 0,
+    ], isUid: true);
     if (read) {
       await client.markSeen(sequence);
     } else {
@@ -51,15 +53,16 @@ extension MailRuntimeServiceActions on MailRuntimeService {
     ComposeRequest request,
   ) async {
     final client = await connect(account, password);
-    final builder = MessageBuilder.prepareMultipartAlternativeMessage(
-      plainText: request.bodyPlain,
-      htmlText: request.bodyHtml,
-    )
-      ..from = [MailAddress(account.email, account.displayName)]
-      ..to = _addresses(request.to)
-      ..cc = _addresses(request.cc)
-      ..bcc = _addresses(request.bcc)
-      ..subject = request.subject;
+    final builder =
+        MessageBuilder.prepareMultipartAlternativeMessage(
+            plainText: request.bodyPlain,
+            htmlText: request.bodyHtml,
+          )
+          ..from = [MailAddress(account.email, account.displayName)]
+          ..to = _addresses(request.to)
+          ..cc = _addresses(request.cc)
+          ..bcc = _addresses(request.bcc)
+          ..subject = request.subject;
     for (final path in request.attachmentPaths) {
       final file = File(path);
       await builder.addFile(file, MediaType.guessFromFileName(path));
@@ -88,8 +91,9 @@ extension MailRuntimeServiceActions on MailRuntimeService {
     AccountModel account,
     String password,
     EmailModel email,
-    AttachmentModel attachment,
-  ) async {
+    AttachmentModel attachment, {
+    String? savePath,
+  }) async {
     final client = await connect(account, password);
     await client.selectMailboxByPath(email.mailbox);
     final result = await client.searchMessages(
@@ -109,15 +113,19 @@ extension MailRuntimeServiceActions on MailRuntimeService {
     if (bytes == null) {
       return null;
     }
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, attachment.filename));
+    final file = File(
+      savePath ??
+          p.join(
+            (await getApplicationDocumentsDirectory()).path,
+            attachment.filename,
+          ),
+    );
+    await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes, flush: true);
     return file.path;
   }
 
   List<MailAddress> _addresses(List<EmailAddressModel> values) {
-    return values
-        .map((item) => MailAddress(item.email, item.name))
-        .toList();
+    return values.map((item) => MailAddress(item.email, item.name)).toList();
   }
 }

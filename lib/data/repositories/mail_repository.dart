@@ -1,6 +1,7 @@
 import '../../core/utils/result.dart';
 import '../models/account_model.dart';
 import '../models/attachment_model.dart';
+import '../models/cache_summary.dart';
 import '../models/compose_request.dart';
 import '../models/email_model.dart';
 import '../models/mailbox_model.dart';
@@ -27,6 +28,8 @@ abstract class MailRepository {
     EmailModel email,
     AttachmentModel attachment,
   );
+  Future<Result<CacheSummary>> getAttachmentCacheSummary();
+  Future<Result<void>> clearAttachmentCache();
   Future<Result<void>> sendEmail(ComposeRequest request);
   Future<Result<void>> seedDemoMailboxData();
 }

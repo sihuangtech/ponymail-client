@@ -30,10 +30,7 @@ extension DatabaseWriteOps on AppDatabase {
   Future<void> replaceEmails(List<EmailModel> values) async {
     await batch((batch) {
       batch.deleteAll(emails);
-      batch.insertAll(
-        emails,
-        values.map(_emailCompanionFromModel),
-      );
+      batch.insertAll(emails, values.map(_emailCompanionFromModel));
     });
   }
 
@@ -65,6 +62,54 @@ extension DatabaseWriteOps on AppDatabase {
     });
   }
 
+  Future<void> replaceAttachmentsForEmail(
+    int emailId,
+    List<AttachmentModel> values,
+  ) async {
+    await transaction(() async {
+      await (delete(
+        attachments,
+      )..where((tbl) => tbl.emailId.equals(emailId))).go();
+      if (values.isEmpty) {
+        return;
+      }
+      await batch((batch) {
+        batch.insertAll(
+          attachments,
+          values.map(
+            (attachment) => AttachmentsCompanion.insert(
+              id: Value(attachment.id),
+              emailId: attachment.emailId,
+              filename: attachment.filename,
+              mimeType: attachment.mimeType,
+              size: attachment.size,
+              localPath: attachment.localPath,
+            ),
+          ),
+        );
+      });
+    });
+  }
+
+  Future<void> upsertAttachment(AttachmentModel attachment) async {
+    await into(attachments).insertOnConflictUpdate(
+      AttachmentsCompanion.insert(
+        id: Value(attachment.id),
+        emailId: attachment.emailId,
+        filename: attachment.filename,
+        mimeType: attachment.mimeType,
+        size: attachment.size,
+        localPath: attachment.localPath,
+      ),
+    );
+  }
+
+  Future<void> clearAttachmentCacheMetadata() async {
+    await update(
+      attachments,
+    ).write(const AttachmentsCompanion(localPath: Value('')));
+  }
+
   EmailsCompanion _emailCompanionFromModel(EmailModel email) {
     return EmailsCompanion.insert(
       id: Value(email.id),
@@ -77,8 +122,9 @@ extension DatabaseWriteOps on AppDatabase {
       fromEmail: email.fromEmail,
       toList: jsonEncode(email.to.map((item) => item.toJson()).toList()),
       ccList: Value(jsonEncode(email.cc.map((item) => item.toJson()).toList())),
-      bccList:
-          Value(jsonEncode(email.bcc.map((item) => item.toJson()).toList())),
+      bccList: Value(
+        jsonEncode(email.bcc.map((item) => item.toJson()).toList()),
+      ),
       date: email.date,
       preview: Value(email.preview),
       bodyPlain: Value(email.bodyPlain),
@@ -147,5 +193,16 @@ MailboxModel _mapMailbox(Mailboxe row) {
     path: row.path,
     type: row.type,
     unreadCount: row.unreadCount,
+  );
+}
+
+AttachmentModel _mapAttachment(Attachment row) {
+  return AttachmentModel(
+    id: row.id,
+    emailId: row.emailId,
+    filename: row.filename,
+    mimeType: row.mimeType,
+    size: row.size,
+    localPath: row.localPath,
   );
 }
