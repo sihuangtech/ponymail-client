@@ -86,6 +86,14 @@
   "emptyInbox": "No cached mail yet",
   "sampleHtmlTitle": "Rendered HTML email",
   "reply": "Reply",
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "batchMove": "Move",
+  "batchDeleteConfirm": "Delete the selected emails?",
   "markUnread": "Mark unread",
   "markRead": "Mark read",
   "archive": "Archive",

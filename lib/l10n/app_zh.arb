@@ -86,6 +86,14 @@
   "emptyInbox": "还没有缓存邮件",
   "sampleHtmlTitle": "HTML 邮件渲染示例",
   "reply": "回复",
+  "selectedCount": "已选择 {count} 封",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "batchMove": "移动",
+  "batchDeleteConfirm": "删除已选择的邮件？",
   "markUnread": "标为未读",
   "markRead": "标为已读",
   "archive": "归档",

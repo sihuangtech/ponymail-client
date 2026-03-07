@@ -548,6 +548,24 @@ abstract class AppLocalizations {
   /// **'Reply'**
   String get reply;
 
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(Object count);
+
+  /// No description provided for @batchMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get batchMove;
+
+  /// No description provided for @batchDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the selected emails?'**
+  String get batchDeleteConfirm;
+
   /// No description provided for @markUnread.
   ///
   /// In en, this message translates to:

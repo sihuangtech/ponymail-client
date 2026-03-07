@@ -247,6 +247,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reply => 'Reply';
 
   @override
+  String selectedCount(Object count) {
+    return '$count selected';
+  }
+
+  @override
+  String get batchMove => 'Move';
+
+  @override
+  String get batchDeleteConfirm => 'Delete the selected emails?';
+
+  @override
   String get markUnread => 'Mark unread';
 
   @override

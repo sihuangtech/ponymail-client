@@ -238,6 +238,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reply => '回复';
 
   @override
+  String selectedCount(Object count) {
+    return '已选择 $count 封';
+  }
+
+  @override
+  String get batchMove => '移动';
+
+  @override
+  String get batchDeleteConfirm => '删除已选择的邮件？';
+
+  @override
   String get markUnread => '标为未读';
 
   @override

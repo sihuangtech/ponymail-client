@@ -14,9 +14,41 @@ class SelectedMailboxNotifier extends Notifier<String?> {
   void select(String? path) => state = path;
 }
 
+class SelectedEmailIdsNotifier extends Notifier<Set<int>> {
+  @override
+  Set<int> build() => <int>{};
+
+  void toggle(int emailId) {
+    final next = {...state};
+    if (next.contains(emailId)) {
+      next.remove(emailId);
+    } else {
+      next.add(emailId);
+    }
+    state = next;
+  }
+
+  void clear() => state = <int>{};
+
+  void replaceAll(Iterable<int> ids) => state = {...ids};
+
+  void retainVisible(Iterable<int> visibleIds) {
+    final allowed = visibleIds.toSet();
+    final next = state.where(allowed.contains).toSet();
+    if (next.length != state.length) {
+      state = next;
+    }
+  }
+}
+
 final selectedMailboxProvider =
     NotifierProvider<SelectedMailboxNotifier, String?>(
       SelectedMailboxNotifier.new,
+    );
+
+final selectedEmailIdsProvider =
+    NotifierProvider<SelectedEmailIdsNotifier, Set<int>>(
+      SelectedEmailIdsNotifier.new,
     );
 
 class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
@@ -66,6 +98,51 @@ class InboxNotifier extends AsyncNotifier<List<EmailModel>> {
     final repository = ref.read(mailRepositoryProvider);
     await repository.moveEmail(email, target);
     await refreshInbox();
+  }
+
+  Future<String?> markReadBatch(List<EmailModel> emails, bool read) async {
+    try {
+      final repository = ref.read(mailRepositoryProvider);
+      for (final email in emails) {
+        await repository.markRead(email, read);
+      }
+      await refreshInbox();
+      ref.read(selectedEmailIdsProvider.notifier).clear();
+      return null;
+    } catch (e) {
+      return '批量更新已读状态失败: $e';
+    }
+  }
+
+  Future<String?> deleteBatch(List<EmailModel> emails) async {
+    try {
+      final repository = ref.read(mailRepositoryProvider);
+      for (final email in emails) {
+        await repository.deleteEmail(email);
+      }
+      await refreshInbox();
+      ref.read(selectedEmailIdsProvider.notifier).clear();
+      return null;
+    } catch (e) {
+      return '批量删除失败: $e';
+    }
+  }
+
+  Future<String?> moveBatch(
+    List<EmailModel> emails,
+    MailboxModel target,
+  ) async {
+    try {
+      final repository = ref.read(mailRepositoryProvider);
+      for (final email in emails) {
+        await repository.moveEmail(email, target);
+      }
+      await refreshInbox();
+      ref.read(selectedEmailIdsProvider.notifier).clear();
+      return null;
+    } catch (e) {
+      return '批量移动失败: $e';
+    }
   }
 }
 

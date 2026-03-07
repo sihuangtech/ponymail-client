@@ -9,17 +9,21 @@ import '../../../widgets/mail_list_tile.dart';
 import 'home_mail_actions_sheet.dart';
 
 class HomeInboxList extends ConsumerWidget {
-  const HomeInboxList({
-    super.key,
-    required this.inboxAsync,
-  });
+  const HomeInboxList({super.key, required this.inboxAsync});
 
   final AsyncValue<List<EmailModel>> inboxAsync;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIds = ref.watch(selectedEmailIdsProvider);
+    final selectionMode = selectedIds.isNotEmpty;
     return inboxAsync.when(
       data: (mails) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref
+              .read(selectedEmailIdsProvider.notifier)
+              .retainVisible(mails.map((mail) => mail.id));
+        });
         if (mails.isEmpty) {
           return Center(child: Text(context.l10n.emptyInbox));
         }
@@ -30,6 +34,26 @@ class HomeInboxList extends ConsumerWidget {
             itemCount: mails.length,
             itemBuilder: (context, index) {
               final email = mails[index];
+              final tile = MailListTile(
+                email: email,
+                isSelected: selectedIds.contains(email.id),
+                showSelection: selectionMode,
+                onLongPress: () => ref
+                    .read(selectedEmailIdsProvider.notifier)
+                    .toggle(email.id),
+                onTap: () {
+                  if (selectionMode) {
+                    ref
+                        .read(selectedEmailIdsProvider.notifier)
+                        .toggle(email.id);
+                    return;
+                  }
+                  context.push('/email/${email.id}');
+                },
+              );
+              if (selectionMode) {
+                return tile;
+              }
               return Dismissible(
                 key: ValueKey(email.id),
                 background: _SwipeAction(
@@ -49,19 +73,15 @@ class HomeInboxList extends ConsumerWidget {
                   );
                   return false;
                 },
-                child: MailListTile(
-                  email: email,
-                  onTap: () => context.push('/email/${email.id}'),
-                ),
+                child: tile,
               );
             },
           ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: Text(context.l10n.loadingFailed(error.toString())),
-      ),
+      error: (error, stackTrace) =>
+          Center(child: Text(context.l10n.loadingFailed(error.toString()))),
     );
   }
 }

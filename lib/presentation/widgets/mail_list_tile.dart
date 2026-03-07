@@ -8,10 +8,16 @@ class MailListTile extends StatelessWidget {
     super.key,
     required this.email,
     required this.onTap,
+    this.onLongPress,
+    this.isSelected = false,
+    this.showSelection = false,
   });
 
   final EmailModel email;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final bool isSelected;
+  final bool showSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +27,16 @@ class MailListTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ListTile(
         onTap: onTap,
+        onLongPress: onLongPress,
         contentPadding: const EdgeInsets.all(16),
-        leading: CircleAvatar(
-          backgroundColor: email.isRead
-              ? scheme.secondaryContainer
-              : scheme.primary.withValues(alpha: 0.16),
-          child: Text(sender.characters.first.toUpperCase()),
-        ),
+        leading: showSelection
+            ? Checkbox(value: isSelected, onChanged: (_) => onTap())
+            : CircleAvatar(
+                backgroundColor: email.isRead
+                    ? scheme.secondaryContainer
+                    : scheme.primary.withValues(alpha: 0.16),
+                child: Text(sender.characters.first.toUpperCase()),
+              ),
         title: Row(
           children: [
             Expanded(
@@ -64,8 +73,9 @@ class MailListTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontWeight:
-                            email.isRead ? FontWeight.w500 : FontWeight.w700,
+                        fontWeight: email.isRead
+                            ? FontWeight.w500
+                            : FontWeight.w700,
                       ),
                     ),
                   ),
@@ -74,11 +84,7 @@ class MailListTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              Text(
-                email.preview,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+              Text(email.preview, maxLines: 2, overflow: TextOverflow.ellipsis),
             ],
           ),
         ),
