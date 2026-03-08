@@ -92,6 +92,14 @@ flutter analyze
 flutter test
 ```
 
+## 开发文档
+
+- 开发文档入口见 [flutter-development.md](flutter-development.md)
+- Android 平台见 [flutter-development-android.md](flutter-development-android.md)
+- iOS 平台见 [flutter-development-ios.md](flutter-development-ios.md)
+- macOS 平台见 [flutter-development-macos.md](flutter-development-macos.md)
+- Windows 平台见 [flutter-development-windows.md](flutter-development-windows.md)
+
 ## 开发说明
 
 - 本项目使用 `build_runner` 生成 Drift、Freezed 和 JSON 相关代码。
