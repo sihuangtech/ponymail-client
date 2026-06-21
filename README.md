@@ -1,70 +1,67 @@
 # PonyMail Client
 
+English | [简体中文](README_zh-CN.md)
+
 [![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?logo=flutter&logoColor=white)](https://flutter.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-PonyMail 是一个使用 Flutter 构建的跨平台邮件客户端，面向 macOS、Windows、iOS 和 Android。项目聚焦于多账户邮件收发、统一收件箱、本地缓存、附件管理和高效率批量处理体验，在统一代码栈下提供桌面端与移动端一致的使用方式。
+PonyMail is a cross-platform email client built with Flutter for macOS, Windows, iOS, and Android. It focuses on multi-account email management, a unified inbox, local caching, attachment handling, and efficient bulk actions while delivering a consistent experience across desktop and mobile platforms.
 
-## 特性
+## Features
 
-- 多账户管理与安全凭据存储
-- IMAP / SMTP 账户接入与自动发现配置
-- 统一收件箱与多文件夹浏览
-- 基于 Drift / SQLite 的本地邮件缓存
-- HTML 邮件正文渲染
-- 附件下载、打开、缓存与清理
-- 定时发送与计划队列恢复
-- 实时同步入口与通知偏好配置
-- 邮件列表多选、批量移动、批量删除、批量已读/未读、批量星标
-- 桌面端快捷键支持
-- 中英文国际化
+- Multi-account management with secure credential storage
+- IMAP / SMTP account setup with automatic configuration discovery
+- Unified inbox and multi-folder browsing
+- Local email cache backed by Drift / SQLite
+- HTML email rendering
+- Attachment download, opening, caching, and cleanup
+- Scheduled sending and recovery of scheduled-send queues
+- Entry points for real-time sync and notification preferences
+- Multi-select email lists with bulk move, delete, read/unread, and star actions
+- Desktop keyboard shortcuts
+- English and Simplified Chinese localization
 
-## 技术栈
+## Tech Stack
 
-| 模块 | 技术选型 |
+| Area | Technology |
 | --- | --- |
-| 基础框架 | [Flutter](https://flutter.dev) / [Dart](https://dart.dev) |
-| 状态管理 | [Riverpod](https://riverpod.dev) |
-| 路由 | [GoRouter](https://pub.dev/packages/go_router) |
-| 持久化 | [Drift](https://drift.simonbinder.eu/) / SQLite |
-| 邮件协议 | [enough_mail](https://pub.dev/packages/enough_mail) |
-| 模型生成 | [Freezed](https://pub.dev/packages/freezed) / [json_serializable](https://pub.dev/packages/json_serializable) |
-| 凭据存储 | [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) |
-| HTML 渲染 | [flutter_widget_from_html](https://pub.dev/packages/flutter_widget_from_html) |
-| 本地通知 | [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) |
+| Framework | [Flutter](https://flutter.dev) / [Dart](https://dart.dev) |
+| State management | [Riverpod](https://riverpod.dev) |
+| Routing | [GoRouter](https://pub.dev/packages/go_router) |
+| Persistence | [Drift](https://drift.simonbinder.eu/) / SQLite |
+| Email protocols | [enough_mail](https://pub.dev/packages/enough_mail) |
+| Model generation | [Freezed](https://pub.dev/packages/freezed) / [json_serializable](https://pub.dev/packages/json_serializable) |
+| Credential storage | [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) |
+| HTML rendering | [flutter_widget_from_html](https://pub.dev/packages/flutter_widget_from_html) |
+| Local notifications | [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) |
 
-## 项目结构
+## Project Structure
 
 ```text
 lib/
-├── core/            # 常量、主题、扩展、基础工具
-├── data/            # 数据层：数据库、模型、仓库、服务
-│   ├── database/    # Drift 表、映射与数据库读写
-│   ├── datasources/ # 本地与远程数据源
-│   ├── models/      # Freezed/JSON 模型
+├── core/            # Constants, themes, extensions, and shared utilities
+├── data/            # Data layer: databases, models, repositories, and services
+│   ├── database/    # Drift tables, mappings, and database access
+│   ├── datasources/ # Local and remote data sources
+│   ├── models/      # Freezed/JSON models
 │   ├── repositories/
 │   └── services/
-├── domain/          # 用例与领域逻辑
-├── presentation/    # 页面、组件、Riverpod providers
-└── l10n/            # ARB 与生成后的国际化代码
+├── domain/          # Use cases and domain logic
+├── presentation/    # Screens, widgets, and Riverpod providers
+└── l10n/            # ARB files and generated localization code
 ```
 
-## 主要页面
+## Main Screens
 
-- Onboarding / Account Setup
-  用于初始化账户、自动发现服务器配置和凭据录入。
-- Home / Inbox
-  提供统一收件箱、账户切换、文件夹切换和批量操作入口。
-- Email Detail
-  渲染 HTML 正文并处理附件下载、打开与缓存命中。
-- Compose
-  支持附件、HTML 内容输入和计划发送。
-- Settings
-  集中管理账户、通知偏好、后台同步偏好、计划队列和缓存。
+- **Onboarding / Account Setup** — Initializes accounts, discovers server settings, and collects credentials.
+- **Home / Inbox** — Provides a unified inbox, account and folder switching, and bulk-action entry points.
+- **Email Detail** — Renders HTML message bodies and handles attachment download, opening, and cache hits.
+- **Compose** — Supports attachments, HTML content editing, and scheduled sending.
+- **Settings** — Centralizes account, notification, background-sync, scheduled-queue, and cache settings.
 
-## 快速开始
+## Getting Started
 
-### 1. 获取依赖
+### 1. Install dependencies
 
 ```bash
 git clone https://github.com/sihuangtech/ponymail-client.git
@@ -72,41 +69,45 @@ cd ponymail-client
 flutter pub get
 ```
 
-### 2. 生成代码
+### 2. Generate code
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 flutter gen-l10n
 ```
 
-### 3. 运行
+### 3. Run the app
 
 ```bash
 flutter run
 ```
 
-### 4. 常用校验
+### 4. Run checks
 
 ```bash
 flutter analyze
 flutter test
 ```
 
-## 开发文档
+## Development Documentation
 
-- 开发文档入口见 [flutter-development.md](flutter-development.md)
-- Android 平台见 [flutter-development-android.md](flutter-development-android.md)
-- iOS 平台见 [flutter-development-ios.md](flutter-development-ios.md)
-- macOS 平台见 [flutter-development-macos.md](flutter-development-macos.md)
-- Windows 平台见 [flutter-development-windows.md](flutter-development-windows.md)
+- [Development overview](flutter-development.md)
+- [Android development](flutter-development-android.md)
+- [iOS development](flutter-development-ios.md)
+- [macOS development](flutter-development-macos.md)
+- [Windows development](flutter-development-windows.md)
 
-## 开发说明
+## Development Notes
 
-- 本项目使用 `build_runner` 生成 Drift、Freezed 和 JSON 相关代码。
-- 国际化文案定义在 `lib/l10n/*.arb`，生成代码由 `flutter gen-l10n` 输出。
-- 邮件协议能力基于 `enough_mail`，本地数据持久化使用 Drift。
-- UI 与状态管理主要组织在 `lib/presentation` 下，业务读写集中在 `lib/data`。
+- This project uses `build_runner` to generate Drift, Freezed, and JSON-related code.
+- Localized copy is defined in `lib/l10n/*.arb`; generated code is produced with `flutter gen-l10n`.
+- Email protocol functionality is provided by `enough_mail`, while local persistence uses Drift.
+- UI and state management are primarily organized under `lib/presentation`; data reads and writes are centralized under `lib/data`.
 
-## 开源协议
+## Star History
 
-本项目采用 **MIT License**。详见 [LICENSE](LICENSE)。
+[![Star History Chart](https://api.star-history.com/svg?repos=sihuangtech/ponymail-client&type=Date)](https://www.star-history.com/#sihuangtech/ponymail-client&Date)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
